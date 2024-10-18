@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>New Login Alert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9; 
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: #FFFFE6;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        p {
+            color: #555555;
+            line-height: 1.8;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #FFB01F;
+            color: #FFFFE6;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        a.button {
+            color: #FFFFE6;
+            text-decoration: none;
+        }
+        .info-box {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- <h1>New Login Alert!</h1> -->
+        <p>Hello {{name}},</p>
+        <p>We noticed a new login to your account from a different location. If this was you, there's no need to worry. However, if you did not initiate this login, please secure your account immediately.</p>
+
+        <div class="info-box">
+            <p><strong>Login Details:</strong></p>
+            <p><strong>IP Address:</strong> {{userIp}} </p>
+            <p><strong>Location:</strong> {{city}}, {{region}}, {{country}}</p>
+            <p><strong>Date & Time:</strong> {{date_time}}</p>
+        </div>
+
+        <p>If you suspect unauthorized access, please change your password and review your account activity immediately.</p>
+
+        <a href="{{soundmuveUrl}}" class="button">Secure My Account</a>
+
+        <p>If this was you, feel free to disregard this email.</p>
+
+        <div class="footer">
+            <p>&copy; {{year}} Soundmuve. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
