@@ -10,15 +10,15 @@ const router = express.Router();
 // Controllers
 import { 
     signupController, 
+    updateSignupController,
 
     loginController, 
-    // updateUserProfileCtr, 
-    changePasswordCtr,
-    resetPasswordCtr,
     reValidateUserAuthCtrl,
+
+    // updateUserProfileCtr, 
     sendPasswordResetEmailCtr,
-    resendEmailVerificationTokenCtr,
-    updateSignupController,
+    verifyEmailTokenCtr,
+    setNewPasswordCtr,
 } from './../controllers/authController.js';
 
 // middleWares
@@ -82,14 +82,6 @@ router.get(
     reValidateUserAuthCtrl
 )
 
-// // update User Profile
-// router.post(
-//     '/updateUserProfile',
-//     authMiddleware,
-//     updateUserProfileCtr
-// );
-
-
 // send Password Reset Email
 router.post(
     '/sendPasswordResetEmail',
@@ -101,51 +93,37 @@ router.post(
     sendPasswordResetEmailCtr
 );
 
-
-// change User password
+// verify sent email reset password token
 router.post(
-    '/changePassword',
-    authMiddleware,
-    changePasswordCtr
+    '/verifyEmailToken',
+    verifyEmailTokenCtr
 );
 
 
-
+// reset new password
 router.post(
-    '/resendEmailVerificationToken',
-    resendEmailVerificationTokenCtr
-);
-
-// reset password
-router.post(
-    '/resetPassword',
+    '/setNewPassword',
     [
         body('password').trim()
         .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]+$/)
-        .isLength({ min: 6}).not().isEmpty(),
+        .not().isEmpty(),
         
         body('confirmPassword').trim()
         .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]+$/)
-        .isLength({ min: 6}).not().isEmpty(),
+        .not().isEmpty(),
 
         body('email').trim()
         .isEmail().withMessage('Please enter a valid email')
         .normalizeEmail(),
     ],
-    resetPasswordCtr
+    setNewPasswordCtr
 );
 
-// // verification for auto login
+// change User password
 // router.post(
-//     '/verify',
+//     '/changePassword',
 //     authMiddleware,
-//     async (req, res) => {
-//         return res.status(200).json({
-//             message: "Authenticated Successfully!",
-//             statusCode: 200,
-//             token: req.body
-//         });
-//     }
+//     changePasswordCtr
 // );
 
 export default router;

@@ -8,11 +8,18 @@ import { userModel } from '../models/users.model.js';
 import { userInterface } from "@/typeInterfaces/users.interface.js";
 
 // utilities
-import { sendEmailVerificationCode, sendLoginNotification } from "@/util/mail.js";
+import { sendEmailVerificationCode, sendLoginNotification, sendNewPasswordConfirmationMail } from "@/util/mail.js";
 import { cloudinaryUpload } from "@/util/cloudFileStorage.js";
+import { verifyEmailToken } from "@/util/resources.js";
 
 
 const secretForToken = process.env.JWT_SECRET;
+
+interface passwordResetCodeInterface {
+    email: string,
+    code: string
+}
+let passwordResetCode: passwordResetCodeInterface[] = [];
 
 export const signupController = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -391,6 +398,12 @@ export const sendPasswordResetEmailCtr = async (req: Request, res: Response, nex
             });
         }
 
+
+        setPasswordResetCode({
+            code: mailResponse.code || '',
+            email: uzer.email || email,
+        });
+
         return res.status(201).json({
             statusCode: 201,
             status: true,
@@ -398,135 +411,69 @@ export const sendPasswordResetEmailCtr = async (req: Request, res: Response, nex
             message: 'Password reset Email sent, kindly check your mail for verification code.',
         });
     } catch (error: any) {
-        if (!error.statusCode) {
-            error.statusCode = 500;
-        }
+        if (!error.statusCode) error.statusCode = 500;
         next(error);
     }
 }
 
 
-
-export const changePasswordCtr = async (req: Request, res: Response, next: NextFunction) => {
+// verify email reset code
+export const verifyEmailTokenCtr = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // const userId = req.body.userId;
-        const currentPassword = req.body.currentPassword;
-        const newPassword = req.body.newPassword;
-        const confirmNewPassword = req.body.confirmNewPassword;
-        const userDataParam = req.body.authMiddlewareParam;
+        const code = req.body.code;
+        // const email = req.body.email;
+        // const token = req.body.token;
 
-        if (newPassword !== confirmNewPassword) {
-            return res.status(400).json({
-                status: false,
-                statusCode: 400,
-                message: "passwords doesn't match."
-            });
-        }
-
-        const user = await userModel.findOne({email: userDataParam.email});
-        if (!user?._id) {
+        const authHeader = req.get('Authorization');
+        if (!authHeader) {
             return res.status(401).json({
-                message: "A user with this ID could not be found!",
                 status: false,
                 statusCode: 401,
+                message: "No authentication token, Please try again.",
             });
         };
 
-        const isPassEqual = await bcryptjs.compare(currentPassword, user.password);
-        if (!isPassEqual) {
-            return res.status(400).json({
-                status: false,
-                statusCode: 400,
-                message: "Wrong password!"
-            });
-        }
-
-        const hashedPassword = await bcryptjs.hash(newPassword, 12);
-
-        const updatedUser = await userModel.findOneAndUpdate(
-            { _id: user._id }, 
-            { password: hashedPassword },
-            // {
-            //     runValidators: true,
-            //     returnOriginal: false,
-            // }
-        );
+        const token = authHeader.split(' ')[1];
         
-        if (!updatedUser?._id) {
-            return res.status(500).json({
+        const verifyRes =  verifyEmailToken(code, token);
+        
+        if (!verifyRes.status) {
+            return res.status(401).json({
+                statusCode: 401,
                 status: false,
-                statusCode: 500,
-                message: 'Ooopps unable to update password.',
+                message: 'wrong verification code!',
             });
         }
+
 
         return res.status(201).json({
             status: true,
             statusCode: 201,
-            message: 'Password Changed successfully!',
+            // decodedToken: verifyRes.decodedToken,
+            message: 'Please proceed to reset your password.',
         });
     } catch (error: any) {
         if (!error.statusCode) {
             error.statusCode = 500;
+            error.message = 'server error!';
         }
         next(error);
     }
 }
 
 
-export const resendEmailVerificationTokenCtr = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const email = req.body.email || "";
-        const firstName = req.body.firstName || "";
-        const middleName = req.body.middleName || "";
-        const lastName = req.body.lastName || "";
-
-        const mailRes = sendEmailVerificationCode(email, `${firstName} ${middleName || ''} ${lastName}`)
-        if (!mailRes.status) {
-            return res.status(500).json({
-                status: false,
-                statusCode: 500,
-                message: mailRes.message,
-                error: mailRes.error
-            });
-        }
-        
-        return res.status(201).json({
-            status: true,
-            statusCode: 201,
-            verificationToken: mailRes.code,
-            message: 'User registered successfully!'
-        });
-    } catch (error: any) {
-        if (!error.statusCode) {
-            error.statusCode = 500;
-        }
-        next(error);
-    }
-}
-
-
-export const resetPasswordCtr = async (req: Request, res: Response, next: NextFunction) => {
+export const setNewPasswordCtr = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const error = validationResult(req);
         if (!error.isEmpty()) {
             return res.status(400).json({
                 statusCode: 400,
                 status: false,
-                message: 'password Error!',
+                message: 'Form validation error!',
                 error
             });
         };
-    } catch (error: any) {
-        if (!error.statusCode) {
-            error.statusCode = 500;
-        }
-        error.status = false;
-        error.message = "sent data validation error";
-        next(error);
-    }
-    
-    try {
+
         const email = req.body.email;
         const newPassword = req.body.password;
         const confirmPassword = req.body.confirmPassword;
@@ -539,8 +486,42 @@ export const resetPasswordCtr = async (req: Request, res: Response, next: NextFu
             });
         }
 
-        const hashedPassword = await bcryptjs.hash(newPassword, 12);
+        // get the saved tempt code
+        const resetcode = getPasswordResetCodeByEmail(email);
+        if (!resetcode) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'session timeout!',
+            });
+        }
 
+
+        // add extra security to ensure the actual user requested for the change
+        const authHeader = req.get('Authorization');
+        if (!authHeader) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "No authentication token, Please try again.",
+            });
+        };
+
+        const token = authHeader.split(' ')[1];
+        const verifyRes = verifyEmailToken(resetcode.code, token);
+        if (!verifyRes.status) {
+            return res.status(401).json({
+                statusCode: 401,
+                status: false,
+                message: 'session timeout!',
+            });
+        }
+
+        // remove the saved code;
+        removePasswordResetCode(email);
+
+        // generate and update the new password hash
+        const hashedPassword = await bcryptjs.hash(newPassword, 12);
         const updatedUser = await userModel.findOneAndUpdate(
             { email: email }, 
             { password: hashedPassword },
@@ -550,52 +531,118 @@ export const resetPasswordCtr = async (req: Request, res: Response, next: NextFu
             }
         );
 
-        // TODO:: send email to user about the changed password.
-
-        if (updatedUser) {
-            return res.status(201).json({
-                status: true,
-                statusCode: 201,
-                message: 'Password Changed successfully!',
+        if (!updatedUser) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: 'Ooopps unable to update password.',
             });
         }
 
-        return res.status(500).json({
-            status: false,
-            statusCode: 500,
-            message: 'Ooopps unable to update password.',
+        // send email to user about the changed password.
+        sendNewPasswordConfirmationMail(updatedUser.email, `${updatedUser.firstName} ${updatedUser.lastName}`);
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            message: 'Password Changed successfully!',
         });
     } catch (error: any) {
-        if (!error.statusCode) {
-            error.statusCode = 500;
-        }
+        if (!error.statusCode) error.statusCode = 500;
         next(error);
     }
 }
 
 
-export const verifyEmailToken = (code: string, token: string) => {
-    try {
-        let decodedToken: any = Jwt.verify(token, `${code}`);
-        // console.log(decodedToken);
-        
-        if (!decodedToken || decodedToken.code != code) {
-            return {
-                status: false,
-                // decodedToken,
-                message: 'wrong Verification Code!',
-            }
-        } 
 
-        return {
-            status: true,
-            decodedToken,
-            message: 'Email verified!',
-        }
-    } catch (error) {
-        return {
-            status: false,
-            message: 'unable to verify Verification Code!',
-        }
-    }
+function setPasswordResetCode(passwordResetData: passwordResetCodeInterface) {
+    // Check if the email already exists in the array
+    const existingCode = passwordResetCode.find(code => code.email == passwordResetData.email);
+  
+    // If the email doesn't exist, add the new code to the array
+    if (!existingCode) passwordResetCode.push(passwordResetData);
 }
+
+function removePasswordResetCode(email: string) {
+    // Find the index of the code with the specified email
+    const index = passwordResetCode.findIndex(code => code.email === email);
+  
+    // If the code is found, remove it from the array
+    if (index !== -1) passwordResetCode.splice(index, 1);
+}
+
+function getPasswordResetCodeByEmail(email: string) {
+    // Find the code object with the specified email
+    const code = passwordResetCode.find(code => code.email == email);
+  
+    // Return the code object or null if not found
+    return code || null;
+}
+
+
+// export const changePasswordCtr = async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         // const userId = req.body.userId;
+//         const currentPassword = req.body.currentPassword;
+//         const newPassword = req.body.newPassword;
+//         const confirmNewPassword = req.body.confirmNewPassword;
+//         const userDataParam = req.body.authMiddlewareParam;
+
+//         if (newPassword !== confirmNewPassword) {
+//             return res.status(400).json({
+//                 status: false,
+//                 statusCode: 400,
+//                 message: "passwords doesn't match."
+//             });
+//         }
+
+//         const user = await userModel.findOne({email: userDataParam.email});
+//         if (!user?._id) {
+//             return res.status(401).json({
+//                 message: "A user with this ID could not be found!",
+//                 status: false,
+//                 statusCode: 401,
+//             });
+//         };
+
+//         const isPassEqual = await bcryptjs.compare(currentPassword, user.password);
+//         if (!isPassEqual) {
+//             return res.status(400).json({
+//                 status: false,
+//                 statusCode: 400,
+//                 message: "Wrong password!"
+//             });
+//         }
+
+//         const hashedPassword = await bcryptjs.hash(newPassword, 12);
+
+//         const updatedUser = await userModel.findOneAndUpdate(
+//             { _id: user._id }, 
+//             { password: hashedPassword },
+//             // {
+//             //     runValidators: true,
+//             //     returnOriginal: false,
+//             // }
+//         );
+        
+//         if (!updatedUser?._id) {
+//             return res.status(500).json({
+//                 status: false,
+//                 statusCode: 500,
+//                 message: 'Ooopps unable to update password.',
+//             });
+//         }
+
+//         return res.status(201).json({
+//             status: true,
+//             statusCode: 201,
+//             message: 'Password Changed successfully!',
+//         });
+//     } catch (error: any) {
+//         if (!error.statusCode) {
+//             error.statusCode = 500;
+//         }
+//         next(error);
+//     }
+// }
+

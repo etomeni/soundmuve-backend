@@ -306,3 +306,68 @@ export const sendLoginNotification = (
         }
     }
 }
+
+export const sendNewPasswordConfirmationMail = (
+    email: string, name: string,
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/newPasswordConfirmationMail.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hello ${name},
+
+            Your password has been successfully reset. You can now log in with your new password.
+
+            If you did not reset your password or suspect any unauthorized activity, please contact our support team immediately.
+
+            You can log in to your account here:
+            www.soundmuve.com/auth/login/
+
+            Thank you for using our services. If you have any questions, feel free to reach out to us.
+
+
+            Best regards,
+            SoundMuve
+
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "Password Reset Successful",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}

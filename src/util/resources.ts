@@ -9,19 +9,19 @@ export const verifyEmailToken = (code: string, token: string) => {
             return {
                 status: false,
                 // decodedToken,
-                message: 'wrong Verification Code!',
+                message: 'wrong verification code!',
             }
         } 
 
         return {
             status: true,
             decodedToken,
-            message: 'Email verified!',
+            message: 'verified!',
         }
     } catch (error) {
         return {
             status: false,
-            message: 'unable to verify Verification Code!',
+            message: 'unable to verify Code!',
         }
     }
 }
