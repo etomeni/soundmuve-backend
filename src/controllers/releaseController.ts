@@ -4,6 +4,8 @@ import { validationResult } from "express-validator";
 import { releaseModel } from "@/models/release.model.js";
 import { cloudinaryAudioUpload } from "@/util/cloudFileStorage.js";
 import fs from "fs";
+import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
+import axios from "axios";
 
 
 export const createSingleReleaseCtrl = async (req: Request, res: Response, next: NextFunction) => {
@@ -175,6 +177,77 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
             statusCode: 201,
             result: updatedRelease,
             message: "release data saved"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+
+
+
+
+export const searchSpotifyArtistCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'sent data validation error!', 
+                ...errors
+            });
+        };
+
+        const artistName: string = `${ req.query.artistName || '' }`;
+        let spotifyAccessToken = req.body.spotify.access_token;
+        if (!spotifyAccessToken) spotifyAccessToken = await _getSpotifyAccessTokenFunc();
+
+        const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist`;
+        const response = (await axios.get(searchUrl, {
+            headers: {
+                'Authorization': `Bearer ${spotifyAccessToken}`,
+            },
+        })).data;
+
+        // Extract artist data
+        const artists = response.artists.items;
+
+        // Create an array to hold artist details with the latest album and profile picture
+        const artistDetails = await Promise.all(artists.map(async (item: any) => {
+            const artistId = item.id;
+            const profilePicture = item.images[0] ? item.images[0].url : null;
+
+            // Fetch albums for the artist
+            const albumsUrl = `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album&limit=1&sort=release_date`;
+            const albumsResponse = await axios.get(albumsUrl, {
+                headers: {
+                    'Authorization': `Bearer ${spotifyAccessToken}`,
+                },
+            });
+
+            // Get the latest album
+            const latestAlbum = albumsResponse.data.items.length > 0 ? albumsResponse.data.items[0] : null;
+
+            return {
+                name: item.name,
+                id: artistId,
+                profilePicture,
+                latestAlbum: latestAlbum ? {
+                    name: latestAlbum.name,
+                    releaseDate: latestAlbum.release_date,
+                    externalUrl: latestAlbum.external_urls.spotify,
+                } : null,
+            };
+        }));
+
+        
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: artistDetails,
+            message: "success"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;

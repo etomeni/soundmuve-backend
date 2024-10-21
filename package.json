@@ -14,15 +14,15 @@
     "deploy": "NODE_ENV=production node ./dist/index.js"
   },
   "keywords": [],
-  "author": "https://github.com/etomeni",
+  "author": "https://github.com/SoundMuve",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/etomeni/tesapay-backend.git"
+    "url": "git+https://github.com/SoundMuve/soundmuve-backend.git"
   },
   "bugs": {
-    "url": "https://github.com/etomeni/tesapay-backend/issues"
+    "url": "https://github.com/SoundMuve/soundmuve-backend/issues"
   },
-  "homepage": "https://github.com/etomeni/tesapay-backend#readme",
+  "homepage": "https://github.com/SoundMuve/soundmuve-backend#readme",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.8",
@@ -43,6 +43,7 @@
     "multer": "^1.4.5-lts.1",
     "node-cache": "^5.1.2",
     "nodemailer": "^6.9.13",
+    "qs": "^6.13.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

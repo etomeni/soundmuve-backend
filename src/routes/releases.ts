@@ -1,5 +1,5 @@
 import express from 'express';
-import { body  } from 'express-validator';
+import { body, query  } from 'express-validator';
 import bodyParser from 'body-parser';
 
 const router = express.Router();
@@ -12,12 +12,16 @@ import authMiddleware from '@/middleware/auth.js';
 import { 
     createSingleReleaseCtrl,
     updateCreateSingleReleaseCtrl,
+    searchSpotifyArtistCtrl
 } from '@/controllers/releaseController.js';
 import { upload_diskStorage } from '@/middleware/multerFile.js';
+import { getSpotifyAccessToken } from '@/middleware/sportify_appleMusic.js';
 
 router.use(bodyParser.json());
 
 
+
+// SINGLES single
 // Validation for artistInterface
 const validateArtist = [
     // Validate name (required, must be a string)
@@ -54,7 +58,6 @@ const validateArtist = [
         .isString()
         .withMessage('Latest album external URL must be a string.'),
 ];
-
 router.put(
     "/single/create",
     [
@@ -182,6 +185,22 @@ router.patch(
         authMiddleware,
     ],
     updateCreateSingleReleaseCtrl
+);
+
+
+// search 
+router.get(
+    "/search/spotify-artist",
+    [
+        query('artistName')
+            .trim() // Remove leading/trailing spaces
+            .notEmpty().withMessage('artistName is required') // Check if it's not empty
+            .isLength({ min: 2 }).withMessage('artistName must be at least 2 characters long'), // Validate length
+
+        authMiddleware,
+        getSpotifyAccessToken,
+    ],
+    searchSpotifyArtistCtrl
 );
 
 export default router;
