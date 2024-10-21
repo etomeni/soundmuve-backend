@@ -191,6 +191,7 @@ export const updateSignupController = async (req: Request, res: Response, next: 
                 });
             }
             const recordLabelLogoPath = files.recordLabelLogo[0].path;
+            // console.log(recordLabelLogoPath);
             const result = await cloudinaryImageUpload(recordLabelLogoPath);
 
             user = await userModel.findOneAndUpdate(

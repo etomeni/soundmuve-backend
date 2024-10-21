@@ -151,6 +151,7 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
                         songAudio: resultSongAudio,
                     },
                     coverArt: resultCoverArt,
+                    status: "Complete"
                 } 
             }, 
             { new: true }
