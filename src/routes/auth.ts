@@ -23,6 +23,7 @@ import {
 
 // middleWares
 import authMiddleware from './../middleware/auth.js'
+import { upload_diskStorage } from '@/middleware/multerFile.js';
 
 
 router.use(bodyParser.json());
@@ -51,14 +52,15 @@ router.post(
 router.patch(
     "/updateUser-details",
     [
-        body('userType').trim().not().isEmpty(),
-        body('phoneNumber').trim().not().isEmpty(),
-        body('country').trim().not().isEmpty(),
+        // body('userType').trim().not().isEmpty(),
+        // body('phoneNumber').trim().not().isEmpty(),
+        // body('country').trim().not().isEmpty(),
 
-        body('email').trim()
-        .isEmail().withMessage('Please enter a valid email')
-        .normalizeEmail(),
+        // body('email').trim()
+        // .isEmail().withMessage('Please enter a valid email')
+        // .normalizeEmail(),
         // authMiddleware
+        upload_diskStorage.fields([{ name: 'recordLabelLogo', maxCount: 1 }]),
     ],
     updateSignupController
 );

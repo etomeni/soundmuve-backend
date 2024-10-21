@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
+import multer from 'multer';
+import { determineFileType } from './resources.js';
 // import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import multer from "multer";
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -17,16 +18,12 @@ cloudinary.config({
 // }); 
 
 
-// export const recordLabelLogoUpload = multer({ storage: recordLabelLogoStorage });
-const inMemoryStorage = multer.memoryStorage()  // store image in memory
-export const recordLabelLogoUpload = multer({ storage: inMemoryStorage });
-
-export async function cloudinaryUpload(filePath: string) {
+export async function cloudinaryImageUpload(filePath: string, folderName = 'recordLabelLogo') {
     const result = await cloudinary.uploader.upload(
         filePath, 
         {
-            folder: 'recordLabelLogo',
-            allowed_formats: ['jpg', 'png', 'jpeg'],
+            folder: folderName,
+            allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
         }
     );
      
@@ -42,4 +39,18 @@ export async function cloudinaryUpload(filePath: string) {
     });
 
     return optimizeUrl;
+}
+
+export async function cloudinaryAudioUpload(filePath: any, folderName = 'releases') {
+    const result = await cloudinary.uploader.upload(
+        filePath, 
+        {
+            folder: folderName,
+            // allowed_formats: ['auto'],
+            resource_type: determineFileType(filePath) // mp3 files are considered as 'video' in Cloudinary
+            //filePath.mimetype.startsWith('audio') ? 'video' : 'image' // mp3 files are considered as 'video' in Cloudinary
+        }
+    );
+
+    return result.secure_url;
 }

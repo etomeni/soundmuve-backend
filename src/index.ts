@@ -2,7 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
 
-import fileUpload from 'express-fileupload';
+// import fileUpload from 'express-fileupload';
 
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -13,6 +13,7 @@ import 'dotenv/config';
 
 import authRoutes from './routes/auth.js';
 import contactRoutes from './routes/contact.js';
+import releaseRoutes from './routes/releases.js';
 
 import { get404, get500 } from './controllers/error.js';
 
@@ -43,16 +44,18 @@ app.use(compression());
 const PORT = process.env.PORT || 3000;
 // const PORT = 5000;
 
-app.use(fileUpload());
+// app.use(fileUpload());
+// app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // app.use(getSource);
 // app.use('/api', apiV1Routes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/contact', contactRoutes);
+app.use('/api/v1/releases', releaseRoutes);
 // app.use('/api/v1/users', usersRoutes);
 // app.use('/api/admin', adminRoutes);
-app.use('/api/v1/uploads', express.static('uploads'));
+// app.use('/api/v1/uploads', express.static('uploads'));
 
 app.use(get404);
 app.use(get500);

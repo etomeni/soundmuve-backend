@@ -9,8 +9,9 @@ import { userInterface } from "@/typeInterfaces/users.interface.js";
 
 // utilities
 import { sendEmailVerificationCode, sendLoginNotification, sendNewPasswordConfirmationMail } from "@/util/mail.js";
-import { cloudinaryUpload } from "@/util/cloudFileStorage.js";
+import { cloudinaryImageUpload } from "@/util/cloudFileStorage.js";
 import { verifyEmailToken } from "@/util/resources.js";
+import fs from "fs";
 
 
 const secretForToken = process.env.JWT_SECRET;
@@ -149,6 +150,14 @@ export const updateSignupController = async (req: Request, res: Response, next: 
         const phoneNumber = req.body.phoneNumber;
         const country = req.body.country;
 
+        if (!email || !userType || !phoneNumber || !country) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "all fields are required."
+            });
+        }
+
         let user;
         if (userType == "artist") {
             user = await userModel.findOneAndUpdate(
@@ -173,7 +182,16 @@ export const updateSignupController = async (req: Request, res: Response, next: 
                 });
             }
         } else if (userType == "record label") {
-            const result = await cloudinaryUpload(req.body.recordLabelLogo);
+            const files: any = req.files;
+            if (!files.recordLabelLogo) {
+                return res.status(500).json({
+                    status: false,
+                    statusCode: 500,
+                    message: "record label logo file is required."
+                });
+            }
+            const recordLabelLogoPath = files.recordLabelLogo[0].path;
+            const result = await cloudinaryImageUpload(recordLabelLogoPath);
 
             user = await userModel.findOneAndUpdate(
                 { email: email }, 
@@ -190,6 +208,10 @@ export const updateSignupController = async (req: Request, res: Response, next: 
                 }, 
                 { new: true }
             );
+
+
+            // Optionally delete the local files after uploading to Cloudinary
+            fs.unlinkSync(recordLabelLogoPath);
 
             if (!user) {
                 return res.status(500).json({
