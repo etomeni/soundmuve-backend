@@ -193,6 +193,7 @@ router.put(
     createAlbumRelease1Ctrl
 );
 
+// create-update-2
 router.patch(
     "/album/create-update-2",
     [
@@ -206,6 +207,7 @@ router.patch(
     createAlbumRelease2Ctrl
 );
 
+// create-update-3
 router.patch(
     "/album/create-update-3",
     [
@@ -234,16 +236,17 @@ router.patch(
 
 
 // Add a song to the albumSongs array
+// create-update-4
 router.put(
     "/album/create-update-4",
     [
         upload_diskStorage.fields([{ name: 'songAudio', maxCount: 1 } ]),
 
-        body('release_id')
-            .isString().trim()
-            .withMessage('release _id is required.'),
+        // body('release_id')
+        //     .isString().trim()
+        //     .withMessage('release _id is required.'),
 
-        ...validateArtist,
+        // ...validateArtist,
         authMiddleware,
     ],
     createAlbumRelease4Ctrl
@@ -255,15 +258,15 @@ router.patch(
     [
         upload_diskStorage.fields([{ name: 'songAudio', maxCount: 1 } ]),
 
-        body('release_id')
-            .isString().trim()
-            .withMessage('release _id is required.'),
+        // body('release_id')
+        //     .isString().trim()
+        //     .withMessage('release _id is required.'),
 
-        body('song_id')
-            .isString().trim()
-            .withMessage('song _id is required.'),
+        // body('song_id')
+        //     .isString().trim()
+        //     .withMessage('song _id is required.'),
 
-        ...validateArtist,
+        // ...validateArtist,
         authMiddleware,
     ],
     createAlbumRelease4EditAlbumSongsCtrl
@@ -289,12 +292,12 @@ router.delete(
 
 
 router.patch(
-    "/releases/album/create-update-5",
+    "/album/create-update-5",
     [
         upload_diskStorage.fields([{ name: 'coverArt', maxCount: 1 }]),
-        body('release_id')
-            .isString().trim()
-            .withMessage('release _id is required.'),
+        // body('release_id')
+        //     .isString().trim()
+        //     .withMessage('release _id is required.'),
 
         authMiddleware,
     ],

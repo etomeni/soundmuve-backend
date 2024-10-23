@@ -30,11 +30,11 @@ const SongSchema = new Schema<songInterface>({
     songArtists_Creatives: [SongArtistsCreativesSchema],
     copyrightOwnership: {
         coverVersion: { type: String, enum: ['Yes', 'No'], required: true },
-        permissions: { type: String, enum: ['Yes', 'No'] },
+        permissions: { type: String, enum: ['Yes', 'No', ''] },
     },
     explicitLyrics: { type: String, enum: ['Yes', 'No'], required: true },
-    isrcNumber: { type: String, required: true },
-    lyricsLanguage: { type: String, required: true },
+    isrcNumber: { type: String },
+    lyricsLanguage: { type: String },
     lyrics: { type: String },
     tikTokClipStartTime: {
         minutes: { type: String },

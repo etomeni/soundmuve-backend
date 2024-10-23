@@ -294,14 +294,10 @@ export const createAlbumRelease2Ctrl = async (req: Request, res: Response, next:
         const formData = {
             labelName: req.body.labelName || '', // optional
             recordingLocation: req.body.recordingLocation || '', // optional 
-        
-            soldCountries: {
-                worldwide: req.body.soldWorldwide, // "Yes" | "No",
-                countries: req.body.soldCountries.countries ?? [],
-            },
-        
+            soldCountries: req.body.soldCountries,
             upc_ean: req.body.UPC_EANcode || '' // optional
         };
+
 
         // check if the user exist in the database
         const releaseData = await releaseModel.findById(release_id);
@@ -364,7 +360,7 @@ export const createAlbumRelease3Ctrl = async (req: Request, res: Response, next:
             socialPlatforms: req.body.socialPlatforms,
         };
 
-        console.log(formData);
+        // console.log(formData);
 
         // check if the user exist in the database
         const releaseData = await releaseModel.findById(release_id);
@@ -422,6 +418,17 @@ export const createAlbumRelease4Ctrl = async (req: Request, res: Response, next:
             });
         };
 
+        if (
+            !req.body.release_id || !req.body.songTitle || !req.body.songWriters ||
+            !req.body.songArtists_Creatives || !req.body.copyrightOwnership ||
+            !req.body.explicitLyrics || !req.body.tikTokClipStartTime
+        ) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "all fields are required."
+            });
+        }
 
         const release_id = req.body.release_id;
         const formData = {
@@ -437,8 +444,6 @@ export const createAlbumRelease4Ctrl = async (req: Request, res: Response, next:
             tikTokClipStartTime: JSON.parse(req.body.tikTokClipStartTime),
         };
 
-        console.log(formData);
-        
         // check if the user exist in the database
         const releaseData = await releaseModel.findById(release_id);
         if (!releaseData) {
@@ -461,11 +466,10 @@ export const createAlbumRelease4Ctrl = async (req: Request, res: Response, next:
         }
 
         const resultSongAudio = await cloudinaryAudioUpload(songAudio);
+        // Optionally delete the local files after uploading to Cloudinary
+        fs.unlinkSync(songAudio);
 
         formData.songAudio = resultSongAudio;
-
-        console.log(formData);
-        
 
         // Push the new song to albumSongs array
         const updatedRelease = await releaseModel.findByIdAndUpdate(
@@ -507,12 +511,25 @@ export const createAlbumRelease4EditAlbumSongsCtrl = async (req: Request, res: R
             });
         };
 
+        if (
+            !req.body.release_id || !req.body.song_id || !req.body.songTitle || 
+            !req.body.songWriters ||
+            !req.body.songArtists_Creatives || !req.body.copyrightOwnership ||
+            !req.body.explicitLyrics || !req.body.tikTokClipStartTime
+        ) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "all fields are required."
+            });
+        }
+
 
         const release_id = req.body.release_id;
-        const song_id = req.body.song_Id;
+        const song_id = req.body.song_id;
 
         const formData = {
-            songAudio: '',
+            songAudio: req.body.songAudio_url || '',
             songTitle: req.body.songTitle,
             songWriters: JSON.parse(req.body.songWriters),
             songArtists_Creatives: JSON.parse(req.body.songArtists_Creatives),
@@ -523,8 +540,7 @@ export const createAlbumRelease4EditAlbumSongsCtrl = async (req: Request, res: R
             lyrics: req.body.songLyrics || '',
             tikTokClipStartTime: JSON.parse(req.body.tikTokClipStartTime),
         };
-
-        console.log(formData);
+        // console.log(formData);
         
         // check if the user exist in the database
         const releaseData = await releaseModel.findById(release_id);
@@ -539,21 +555,12 @@ export const createAlbumRelease4EditAlbumSongsCtrl = async (req: Request, res: R
         const files: any = req.files;
         const songAudio = files.songAudio ? files.songAudio[0].path : null;
         
-        if (!songAudio) {
-            return res.status(500).json({
-                status: false,
-                statusCode: 500,
-                message: "song audio file is required."
-            });
+        if (songAudio) {
+            formData.songAudio = await cloudinaryAudioUpload(songAudio);
+            // Optionally delete the local files after uploading to Cloudinary
+            fs.unlinkSync(songAudio);
         }
 
-        const resultSongAudio = await cloudinaryAudioUpload(songAudio);
-
-        formData.songAudio = resultSongAudio;
-
-        console.log(formData);
-        
- 
 
         // Find the release and update the specific song
         const updatedRelease = await releaseModel.findOneAndUpdate(
@@ -652,7 +659,7 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
             });
         };
 
-        const release_id = req.body.release_id;
+        const release_id = req.body.release_id || '';
 
         // check if the user exist in the database
         const releaseData = await releaseModel.findById(release_id);
@@ -703,8 +710,6 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
         next(error);
     }
 }
-
-
 
 
 export const searchSpotifyArtistCtrl = async (req: Request, res: Response, next: NextFunction) => {
