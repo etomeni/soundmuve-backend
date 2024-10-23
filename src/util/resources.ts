@@ -52,5 +52,3 @@ export function determineFileType(filePath: string) {
       return 'image';
     }
 }
-
-  
