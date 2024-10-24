@@ -12,21 +12,44 @@ import authMiddleware from '@/middleware/auth.js';
 import { 
     createSingleReleaseCtrl,
     updateCreateSingleReleaseCtrl,
-    searchSpotifyArtistCtrl,
-
+    getReleaseCtrl,
+    
     createAlbumRelease1Ctrl,
     createAlbumRelease2Ctrl,
     createAlbumRelease3Ctrl,
     createAlbumRelease4Ctrl,
     createAlbumRelease4EditAlbumSongsCtrl,
     createAlbumRelease4DeleteAlbumSongsCtrl,
-    createAlbumRelease5Ctrl
+    createAlbumRelease5Ctrl,
+
+    searchSpotifyArtistCtrl,
 } from '@/controllers/releaseController.js';
 import { upload_diskStorage } from '@/middleware/multerFile.js';
 import { getSpotifyAccessToken } from '@/middleware/sportify_appleMusic.js';
 
 router.use(bodyParser.json());
 
+
+router.get(
+    "/",
+    [
+        query('page')
+            .exists().withMessage('Page is required')
+            .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+
+        query('limit')
+            .exists().withMessage('Limit is required')
+            .isInt({ min: 1 }).withMessage('Limit must be a positive integer'),
+
+        query('releaseType')
+            .exists().withMessage('Release type is required')
+            .isIn(['single', 'album']).withMessage('Release type must be either "single" or "album"'),
+    
+
+        authMiddleware,
+    ],
+    getReleaseCtrl
+);
 
 // Validation for artistInterface
 const validateArtist = [
@@ -159,7 +182,6 @@ const validateRelease2 = [
         .withMessage('UPC/EAN must be a string if provided.'),
 ];
 
-
 // create SINGLES endpoints
 router.put(
     "/single/create",
@@ -289,8 +311,7 @@ router.delete(
     createAlbumRelease4DeleteAlbumSongsCtrl
 );
 
-
-
+// save coverArt
 router.patch(
     "/album/create-update-5",
     [

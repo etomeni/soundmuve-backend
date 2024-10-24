@@ -19,10 +19,11 @@ import {
     sendPasswordResetEmailCtr,
     verifyEmailTokenCtr,
     setNewPasswordCtr,
+    setKycCtr,
 } from './../controllers/authController.js';
 
 // middleWares
-import authMiddleware from './../middleware/auth.js'
+import authMiddleware from '@/middleware/auth.js';
 import { upload_diskStorage } from '@/middleware/multerFile.js';
 
 
@@ -127,5 +128,38 @@ router.post(
 //     authMiddleware,
 //     changePasswordCtr
 // );
+
+const userValidation = [
+];
+
+
+// set kyc details
+router.post(
+    '/set-kyc',
+    [
+        // Validate isKycSubmitted (must be a boolean)
+        // body('isKycSubmitted').isBoolean().withMessage('isKycSubmitted must be a boolean'),
+        
+        // Validate phoneNumber (should be a string, and should match a basic phone number format)
+        body('phoneNumber')
+          .isString().withMessage('Phone number must be a string')
+          .matches(/^\+?[0-9]{10,15}$/).withMessage('Invalid phone number format'),
+        
+        // Validate securityQuestions array
+        body('securityQuestions').isArray({ min: 3 }).withMessage('security questions must be at least three items'),
+        
+        // Validate each security question's question and answer
+        body('securityQuestions.*.question')
+          .isString().withMessage('Security question must be a string')
+          .notEmpty().withMessage('Security question cannot be empty'),
+        
+        body('securityQuestions.*.answer')
+            .isString().withMessage('Answer must be a string')
+            .notEmpty().withMessage('Answer is required'),
+        
+        authMiddleware,
+    ],
+    setKycCtr
+);
 
 export default router;

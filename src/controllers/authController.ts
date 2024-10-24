@@ -576,6 +576,55 @@ export const setNewPasswordCtr = async (req: Request, res: Response, next: NextF
     }
 }
 
+export const setKycCtr = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return res.status(400).json({
+                statusCode: 400,
+                status: false,
+                message: 'Form validation error!',
+                error
+            });
+        };
+
+        const user_id = req.body.authMiddlewareParam._id;
+
+        const kycInfo = {
+            isKycSubmitted: true,
+            phoneNumber: req.body.phoneNumber,
+            securityQuestions: req.body.securityQuestions,
+        };
+
+        const updatedUser = await userModel.findByIdAndUpdate(
+            user_id, 
+            { kyc: kycInfo },
+            {
+                runValidators: true,
+                returnOriginal: false,
+            }
+        );
+
+        if (!updatedUser) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: 'Ooopps unable to update password.',
+            });
+        }
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: updatedUser,
+            message: 'Password Changed successfully!',
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
 
 
 function setPasswordResetCode(passwordResetData: passwordResetCodeInterface) {
