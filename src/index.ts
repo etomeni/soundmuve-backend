@@ -14,6 +14,7 @@ import 'dotenv/config';
 import authRoutes from './routes/auth.js';
 import contactRoutes from './routes/contact.js';
 import releaseRoutes from './routes/releases.js';
+import payoutDetailsRoutes from './routes/payout-details.js';
 
 import { get404, get500 } from './controllers/error.js';
 
@@ -53,6 +54,7 @@ app.use(bodyParser.json());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/contact', contactRoutes);
 app.use('/api/v1/releases', releaseRoutes);
+app.use('/api/v1/payout-details', payoutDetailsRoutes);
 // app.use('/api/v1/users', usersRoutes);
 // app.use('/api/admin', adminRoutes);
 // app.use('/api/v1/uploads', express.static('uploads'));

@@ -32,8 +32,9 @@ export type userInterface = {
     recordLabelName?: string;
     recordLabelLogo?: string;
 
-    kyc?: {
+    kyc: {
         isKycSubmitted: boolean,
+        phoneNumber: string,
         securityQuestions: securityQuestionsInterface[]
     }
 

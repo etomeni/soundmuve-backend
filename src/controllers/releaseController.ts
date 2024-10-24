@@ -8,6 +8,67 @@ import { cloudinaryAudioUpload } from "@/util/cloudFileStorage.js";
 import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
 
 
+// Get releases
+export const getReleaseCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'sent data validation error!', 
+                ...errors
+            });
+        };
+
+        const _id = req.body.authMiddlewareParam._id;
+
+        const page = parseInt(req.query.page as string) || 1; // Current page number, default is 1
+        const limit = parseInt(req.query.limit as string) || 20; // Number of items per page, default is 20
+        const releaseType = req.query.releaseType;
+
+        // Find only the releases where releaseType is "album"
+        const singleRelases = await releaseModel.find({ releaseType, user_id: _id })
+            .sort({ createdAt: -1 })  // Sort by createdAt in descending order
+            .limit(limit) // Set the number of items per page
+            .skip((page - 1) * limit) // Skip items to create pages
+            .exec();
+
+        if (!singleRelases) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to resolve single releases"
+            });
+        };
+
+
+        // Count total single for the user to support pagination
+        const totalSingle = await releaseModel.countDocuments({ releaseType, user_id: _id });
+
+
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: {
+                relases: singleRelases,
+
+                totalPages: Math.ceil(totalSingle / limit), // Calculate total pages
+                currentPage: page,
+                totalRecords: totalSingle,
+            },
+            message: "release data saved"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+
+
+// SINGLE RELEASES
 export const createSingleReleaseCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const errors = validationResult(req);
@@ -191,6 +252,65 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
 
 
 
+
+
+// ALBUM RELEASES
+export const getAlbumReleaseCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'sent data validation error!', 
+                ...errors
+            });
+        };
+
+        const _id = req.body.authMiddlewareParam._id;
+
+        const page = parseInt(req.query.page as string) || 1; // Current page number, default is 1
+        const limit = parseInt(req.query.limit as string) || 20; // Number of items per page, default is 20
+    
+        // Find only the releases where releaseType is "album"
+        const albumRelases = await releaseModel
+            .find({ releaseType: 'album', user_id: _id })
+            .sort({ createdAt: -1 })  // Sort by createdAt in descending order
+            .limit(limit) // Set the number of items per page
+            .skip((page - 1) * limit) // Skip items to create pages
+            .exec();
+
+        if (!albumRelases) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to resolve album releases"
+            });
+        };
+
+
+        // Count total albums for the user to support pagination
+        const totalAlbums = await releaseModel.countDocuments({ releaseType: 'album', user_id: _id });
+
+
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: {
+                relases: albumRelases,
+
+                totalPages: Math.ceil(totalAlbums / limit), // Calculate total pages
+                currentPage: page,
+                totalRecords: totalAlbums,
+            },
+            message: "release data saved"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
 
 export const createAlbumRelease1Ctrl = async (req: Request, res: Response, next: NextFunction) => {
     try {

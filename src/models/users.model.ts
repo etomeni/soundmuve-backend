@@ -77,6 +77,7 @@ const userSchema = new Schema<userInterface>(
                 type: Boolean,
                 default: false,
             },
+            phoneNumber: { type: String },
         },
 
         password: {
