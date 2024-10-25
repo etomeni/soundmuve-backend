@@ -47,6 +47,8 @@ const releaseSchema = new Schema<releaseInterface>({
     user_id: { type: String, required: true },
     email: { type: String, required: true },
     recordLabelArtist_id: { type: String },
+    // recordLabelArtist_id: { type: Schema.Types.ObjectId, ref: 'RecordLabelArtist' },
+
     releaseType: { type: String, enum: ['single', 'album'], required: true },
 
     title: { type: String, required: true }, // √

@@ -58,7 +58,7 @@ export const getReleaseCtrl = async (req: Request, res: Response, next: NextFunc
                 currentPage: page,
                 totalRecords: totalSingle,
             },
-            message: "release data saved"
+            message: "successful"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
@@ -127,7 +127,7 @@ export const createSingleReleaseCtrl = async (req: Request, res: Response, next:
                 status: true,
                 statusCode: 201,
                 result: updatedRelease,
-                message: "release data saved"
+                message: "successful"
             });
         }
 
@@ -242,7 +242,7 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
             status: true,
             statusCode: 201,
             result: updatedRelease,
-            message: "release data saved"
+            message: "successful"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
@@ -304,7 +304,7 @@ export const getAlbumReleaseCtrl = async (req: Request, res: Response, next: Nex
                 currentPage: page,
                 totalRecords: totalAlbums,
             },
-            message: "release data saved"
+            message: "successful"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
@@ -370,7 +370,7 @@ export const createAlbumRelease1Ctrl = async (req: Request, res: Response, next:
                 status: true,
                 statusCode: 201,
                 result: updatedRelease,
-                message: "release data saved"
+                message: "successful"
             });
         }
 
@@ -453,7 +453,7 @@ export const createAlbumRelease2Ctrl = async (req: Request, res: Response, next:
             status: true,
             statusCode: 201,
             result: updatedRelease,
-            message: "release data saved"
+            message: "successful"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
@@ -516,7 +516,7 @@ export const createAlbumRelease3Ctrl = async (req: Request, res: Response, next:
             status: true,
             statusCode: 201,
             result: updatedRelease,
-            message: "release data saved"
+            message: "successful"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
@@ -610,7 +610,7 @@ export const createAlbumRelease4Ctrl = async (req: Request, res: Response, next:
             status: true,
             statusCode: 201,
             result: updatedRelease,
-            message: "release data saved"
+            message: "successful"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
@@ -703,7 +703,7 @@ export const createAlbumRelease4EditAlbumSongsCtrl = async (req: Request, res: R
             status: true,
             statusCode: 201,
             result: updatedRelease,
-            message: "release data saved"
+            message: "successful"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
@@ -757,7 +757,7 @@ export const createAlbumRelease4DeleteAlbumSongsCtrl = async (req: Request, res:
             status: true,
             statusCode: 201,
             result: updatedRelease,
-            message: "release data saved"
+            message: "successful"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
@@ -823,7 +823,7 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
             status: true,
             statusCode: 201,
             result: updatedRelease,
-            message: "release data saved"
+            message: "successful"
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
