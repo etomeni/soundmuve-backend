@@ -16,12 +16,13 @@ import contactRoutes from './routes/contact.js';
 import releaseRoutes from './routes/releases.js';
 import payoutDetailsRoutes from './routes/payout-details.js';
 import recordLabelRoutes from './routes/record-label.js';
+import cartRoutes from './routes/cart.route.js';
 
 import { get404, get500 } from './controllers/error.js';
 
 const limiter = rateLimit({
-	windowMs: 10 * 60 * 1000, // 15 minutes
-	limit: 150, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+	windowMs: 5 * 60 * 1000, // 5 minutes
+	limit: 200, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
 	// standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
 	// legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
 	// store: ... , // Redis, Memcached, etc. See below.
@@ -57,6 +58,7 @@ app.use('/api/v1/contact', contactRoutes);
 app.use('/api/v1/releases', releaseRoutes);
 app.use('/api/v1/payout-details', payoutDetailsRoutes);
 app.use('/api/v1/record-label', recordLabelRoutes);
+app.use('/api/v1/checkout', cartRoutes);
 // app.use('/api/v1/users', usersRoutes);
 // app.use('/api/admin', adminRoutes);
 // app.use('/api/v1/uploads', express.static('uploads'));

@@ -83,11 +83,13 @@ const releaseSchema = new Schema<releaseInterface>({
 
     status: { 
         type: String, 
-        enum: ["Live", "Pending", "Incomplete", "Complete", "Failed"],
+        // enum: ["Live", "Pending", "Incomplete", "Complete", "Failed"],
+        enum: ["Incomplete", "Unpaid", "Processing",  "Complete", "Live", "Failed"],
         default: "Incomplete",
         required: true
     },
     liveUrl: { type: String },
+    payment_id: { type: String },
 
 }, { timestamps: true });
 

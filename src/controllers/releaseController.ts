@@ -219,7 +219,7 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
                         songAudio: resultSongAudio,
                     },
                     coverArt: resultCoverArt,
-                    status: "Complete"
+                    status: "Unpaid"
                 } 
             }, 
             { new: true }
@@ -435,7 +435,7 @@ export const createAlbumRelease2Ctrl = async (req: Request, res: Response, next:
                 $set: { 
                     // release_id: req.body.release_id,
                     ...formData,
-                    // status: "Complete"
+                    // status: "Unpaid"
                 } 
             }, 
             { new: true, runValidators: true } // Options: Return the updated record and run validation
@@ -498,7 +498,7 @@ export const createAlbumRelease3Ctrl = async (req: Request, res: Response, next:
                 $set: { 
                     // release_id: req.body.release_id,
                     ...formData,
-                    // status: "Complete"
+                    // status: "Unpaid"
                 } 
             }, 
             { new: true, runValidators: true } // Options: Return the updated record and run validation
@@ -802,7 +802,7 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
             { 
                 $set: { 
                     coverArt: resultCoverArt,
-                    status: "Complete"
+                    status: "Unpaid"
                 } 
             }, 
             { new: true }

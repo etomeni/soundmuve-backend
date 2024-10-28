@@ -85,8 +85,9 @@ export type releaseInterface = {
 
     coverArt: string,
 
-    status: "Live" | "Pending" | "Incomplete" | "Complete" | "Failed" | string,
+    status: "Incomplete" | "Unpaid" | "Processing" |  "Complete" | "Live" | "Failed" | string,
     liveUrl?: string,
+    payment_id?: string,
 
     createdAt?: string;
     updatedAt?: string;

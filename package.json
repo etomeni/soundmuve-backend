@@ -44,6 +44,7 @@
     "node-cache": "^5.1.2",
     "nodemailer": "^6.9.13",
     "qs": "^6.13.0",
+    "stripe": "^17.2.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
