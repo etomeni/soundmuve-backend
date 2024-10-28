@@ -48,7 +48,14 @@ export const addToCartCtrl = async (req: Request, res: Response, next: NextFunct
         }
 
         // get all cart items
-        const cartItems = getAllCartItems(user_id, res);
+        const cartItems = await getAllCartItems(user_id);
+        if (!cartItems) {
+            return res.status(404).json({
+                status: false,
+                statusCode: 404,
+                message: "cart items not found"
+            });
+        }
 
         return res.status(201).json({
             status: true,
@@ -78,7 +85,14 @@ export const getAllCartItemCtrl = async (req: Request, res: Response, next: Next
         // const user_email = req.body.authMiddlewareParam.email;
 
         // get all cart items
-        const cartItems = getAllCartItems(user_id, res);
+        const cartItems = await getAllCartItems(user_id);
+        if (!cartItems) {
+            return res.status(404).json({
+                status: false,
+                statusCode: 404,
+                message: "cart items not found"
+            });
+        }
 
         return res.status(201).json({
             status: true,
@@ -117,8 +131,14 @@ export const removeFromCartCtrl = async (req: Request, res: Response, next: Next
         }
 
         // get all cart items
-        const cartItems = getAllCartItems(user_id, res);
-
+        const cartItems = await getAllCartItems(user_id);
+        if (!cartItems) {
+            return res.status(404).json({
+                status: false,
+                statusCode: 404,
+                message: "cart items not found"
+            });
+        }
 
         return res.status(201).json({
             status: true,
@@ -366,7 +386,14 @@ export const checkReleaseCartCtrl = async (req: Request, res: Response, next: Ne
             }
         }
 
-        const cartItems = getAllCartItems(user_id, res);
+        const cartItems = await getAllCartItems(user_id);
+        if (!cartItems) {
+            return res.status(404).json({
+                status: false,
+                statusCode: 404,
+                message: "cart items not found"
+            });
+        }
 
         return res.status(201).json({
             status: true,
@@ -382,18 +409,12 @@ export const checkReleaseCartCtrl = async (req: Request, res: Response, next: Ne
 
 
 
-async function getAllCartItems(user_id: string, res: Response) {
+async function getAllCartItems(user_id: string) {
     const cartItems = await cartModel.find({ user_id })
     .sort({ createdAt: -1 })  // Sort by createdAt in descending order
     .exec();
 
-    if (!cartItems) {
-        return res.status(404).json({
-            status: false,
-            statusCode: 404,
-            message: "cart items not found"
-        });
-    }
+    if (!cartItems) return null;
 
     return cartItems;
 }
