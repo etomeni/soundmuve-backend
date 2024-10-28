@@ -14,7 +14,8 @@ import {
     removeFromCartCtrl,
     couponDiscountCtrl,
     getPaymentIntentAndKeysCtrl,
-    successfulPaymentCtrl
+    successfulPaymentCtrl,
+    checkReleaseCartCtrl
 } from '../controllers/cartController.js';
 
 
@@ -173,6 +174,64 @@ router.post(
         authMiddleware,
     ],
     successfulPaymentCtrl
+);
+
+
+// add item to cart
+router.post(
+    "/check-release-cart",
+    [
+        // release_id should be a non-empty string
+        body('release_id')
+            .notEmpty()
+            .withMessage('Release ID is required.')
+            .isString()
+            .withMessage('Release ID must be a string.'),
+
+        // user_email must be a valid email format
+        // body('user_email')
+        //     .isEmail()
+        //     .withMessage('Invalid email format for user_email.'),
+
+        // // user_id should be a non-empty string
+        // body('user_id')
+        //     .notEmpty()
+        //     .withMessage('User ID is required.')
+        //     .isString()
+        //     .withMessage('User ID must be a string.'),
+
+        // artistName should be a non-empty string
+        body('artistName')
+            .notEmpty()
+            .withMessage('Artist name is required.')
+            .isString()
+            .withMessage('Artist name must be a string.'),
+
+        // coverArt should be a valid URL format
+        body('coverArt')
+            .isURL()
+            .withMessage('coverArt must be a valid URL.'),
+
+        // price should be a positive number
+        body('price')
+            .isFloat({ gt: 0 })
+            .withMessage('Price must be a positive number.'),
+
+        // releaseType should be either 'single' or 'album'
+        body('releaseType')
+            .isIn(['single', 'album'])
+            .withMessage("Release type must be either 'single' or 'album'."),
+
+        // title should be a non-empty string
+        body('title')
+            .notEmpty()
+            .withMessage('Title is required.')
+            .isString()
+            .withMessage('Title must be a string.'),
+
+        authMiddleware,
+    ],
+    checkReleaseCartCtrl
 );
 
 

@@ -39,7 +39,6 @@ export const addToCartCtrl = async (req: Request, res: Response, next: NextFunct
 
         const newCart = new cartModel(data2db);
         const newCartResponds = await newCart.save();
-
         if (!newCartResponds) {
             return res.status(500).json({
                 status: false,
@@ -47,18 +46,9 @@ export const addToCartCtrl = async (req: Request, res: Response, next: NextFunct
                 message: "unable to save cart details"
             });
         }
-        
-        const cartItems = await cartModel.find({ user_id })
-        .sort({ createdAt: -1 })  // Sort by createdAt in descending order
-        .exec();
 
-        if (!cartItems) {
-            return res.status(404).json({
-                status: false,
-                statusCode: 404,
-                message: "cart items not found"
-            });
-        }
+        // get all cart items
+        const cartItems = getAllCartItems(user_id, res);
 
         return res.status(201).json({
             status: true,
@@ -87,17 +77,8 @@ export const getAllCartItemCtrl = async (req: Request, res: Response, next: Next
         const user_id = req.body.authMiddlewareParam._id;
         // const user_email = req.body.authMiddlewareParam.email;
 
-        const cartItems = await cartModel.find({ user_id })
-        .sort({ createdAt: -1 })  // Sort by createdAt in descending order
-        .exec();
-
-        if (!cartItems) {
-            return res.status(404).json({
-                status: false,
-                statusCode: 404,
-                message: "cart items not found"
-            });
-        }
+        // get all cart items
+        const cartItems = getAllCartItems(user_id, res);
 
         return res.status(201).json({
             status: true,
@@ -124,14 +105,20 @@ export const removeFromCartCtrl = async (req: Request, res: Response, next: Next
             });
         };
         
-        const cartItems = await cartModel.findByIdAndDelete(req.params.cart_id || '');
-        if (!cartItems) {
+        const user_id = req.body.authMiddlewareParam._id;
+
+        const deletedCartItem = await cartModel.findByIdAndDelete(req.params.cart_id || '');
+        if (!deletedCartItem) {
           return res.status(404).json({
               status: false,
               statusCode: 404,
               message: "cart item not found"
           });
         }
+
+        // get all cart items
+        const cartItems = getAllCartItems(user_id, res);
+
 
         return res.status(201).json({
             status: true,
@@ -332,4 +319,81 @@ export const successfulPaymentCtrl = async (req: Request, res: Response, next: N
         if (!error.statusCode) error.statusCode = 500;
         next(error);
     }
+}
+
+
+export const checkReleaseCartCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'sent data validation error!', 
+                ...errors
+            });
+        };
+
+        const user_id = req.body.authMiddlewareParam._id;
+        const user_email = req.body.authMiddlewareParam.email;
+
+        const data2db = {
+            user_id,
+            user_email,
+            release_id: req.body.release_id,
+            artistName: req.body.artistName,
+            coverArt: req.body.coverArt,
+            price: req.body.price,
+            releaseType: req.body.releaseType,
+            title: req.body.title
+        };
+
+        // check if the item is still in cart
+        // if not add it to cart else proceed
+        // if it returns any error do nothing else navigate to the cart page.
+
+        const releaseCart = await cartModel.findOne({ release_id: data2db.release_id });
+        if (!releaseCart) {
+            const newCart = new cartModel(data2db);
+            const newCartResponds = await newCart.save();
+    
+            if (!newCartResponds) {
+                return res.status(500).json({
+                    status: false,
+                    statusCode: 500,
+                    message: "unable to save cart details"
+                });
+            }
+        }
+
+        const cartItems = getAllCartItems(user_id, res);
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: cartItems,
+            message: "Successful!"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+
+
+async function getAllCartItems(user_id: string, res: Response) {
+    const cartItems = await cartModel.find({ user_id })
+    .sort({ createdAt: -1 })  // Sort by createdAt in descending order
+    .exec();
+
+    if (!cartItems) {
+        return res.status(404).json({
+            status: false,
+            statusCode: 404,
+            message: "cart items not found"
+        });
+    }
+
+    return cartItems;
 }
