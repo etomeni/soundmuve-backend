@@ -13,7 +13,7 @@ import { sendLoginNotification } from "@/util/mail.js";
 const secretForToken = process.env.JWT_SECRET;
 
 
-export const loginController = async (req: Request, res: Response, next: NextFunction) => {
+export const adminLoginController = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

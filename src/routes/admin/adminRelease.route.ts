@@ -34,8 +34,8 @@ router.get(
             // .exists().withMessage('Release type is required')
             .isIn(['single', 'album']).withMessage('Release type must be either "single" or "album"'),
     
-        authMiddleware,
-        // adminAuthMiddleware,
+        // authMiddleware,
+        adminAuthMiddleware,
     ],
     getAllReleaseCtrl
 );
@@ -60,8 +60,8 @@ router.get(
         //     // .exists().withMessage('Release type is required')
         //     .isIn(['single', 'album']).withMessage('Release type must be either "single" or "album"'),
     
-        authMiddleware,
-        // adminAuthMiddleware,
+        // authMiddleware,
+        adminAuthMiddleware,
     ],
     searchReleasesCtrl
 );

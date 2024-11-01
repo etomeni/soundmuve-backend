@@ -21,6 +21,7 @@ import {
     setNewPasswordCtr,
     setKycCtr,
 } from './../controllers/authController.js';
+import { adminLoginController } from '@/controllers/admin/adminAuthController.js';
 
 // middleWares
 import authMiddleware from '@/middleware/auth.js';
@@ -64,6 +65,19 @@ router.patch(
         upload_diskStorage.fields([{ name: 'recordLabelLogo', maxCount: 1 }]),
     ],
     updateSignupController
+);
+
+// admin Login
+router.post(
+    '/admin/login',
+    [
+        body('email').trim()
+        .isEmail().withMessage('Please enter a valid email')
+        .normalizeEmail(),
+
+        body('password').trim().not().isEmpty()
+    ],
+    adminLoginController
 );
 
 // Login
