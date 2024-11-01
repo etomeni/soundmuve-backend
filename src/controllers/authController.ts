@@ -110,7 +110,8 @@ export const signupController = async (req: Request, res: Response, next: NextFu
         const token = Jwt.sign(
             {
                 email: result.email,
-                _id: result._id
+                _id: result._id,
+                role: result.role
             },
             `${secretForToken}`,
             { expiresIn: '7d' }
@@ -267,6 +268,8 @@ export const loginController = async (req: Request, res: Response, next: NextFun
             });
         }
 
+        // user.role == "user"
+
         // check if password is correct
         const isPassEqual = await bcryptjs.compare(sentPassword, user.password);
         if (!isPassEqual) {
@@ -308,7 +311,8 @@ export const loginController = async (req: Request, res: Response, next: NextFun
         const token = Jwt.sign(
             {
                 email: user.email,
-                _id: user._id
+                _id: user._id,
+                role: user.role
             },
             `${secretForToken}`,
             { expiresIn: '7d' }
@@ -363,7 +367,8 @@ export const reValidateUserAuthCtrl = async (req: Request, res: Response, next: 
         const newAccessToken = Jwt.sign(
             {
                 email: user.email,
-                _id: user._id
+                _id: user._id,
+                role: user.role
             },
             `${secretForToken}`,
             { expiresIn: '7d' }

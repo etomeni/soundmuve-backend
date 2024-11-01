@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
 import { validationResult } from "express-validator";
-
-import { cartModel } from "@/models/cart.model.js";
-import { cartItemInterface } from "@/typeInterfaces/cart.interface.js";
-import { couponDiscountModel } from "@/models/couponDiscount.model.js";
 import Stripe from 'stripe';
+
+import { cartItemInterface } from "@/typeInterfaces/cart.interface.js";
+import { cartModel } from "@/models/cart.model.js";
 import { PaymentModel } from "@/models/payments.model.js";
 import { releaseModel } from "@/models/release.model.js";
+import { couponDiscountModel } from "@/models/couponDiscount.model.js";
+
 const stripe = new Stripe(`${process.env.STRIPE_SECRET_KEY}`);
-// const stripe = new Stripe('sk_test_26PHem9AhJZvU623DfE1x4sd');
 
 
 export const addToCartCtrl = async (req: Request, res: Response, next: NextFunction) => {

@@ -17,6 +17,7 @@ import releaseRoutes from './routes/releases.js';
 import payoutDetailsRoutes from './routes/payout-details.js';
 import recordLabelRoutes from './routes/record-label.js';
 import cartRoutes from './routes/cart.route.js';
+import adminReleasesRoutes from './routes/admin/adminRelease.route.js';
 
 import { get404, get500 } from './controllers/error.js';
 
@@ -62,6 +63,9 @@ app.use('/api/v1/checkout', cartRoutes);
 // app.use('/api/v1/users', usersRoutes);
 // app.use('/api/admin', adminRoutes);
 // app.use('/api/v1/uploads', express.static('uploads'));
+
+app.use('/api/v1/admin/releases', adminReleasesRoutes);
+
 
 app.use(get404);
 app.use(get500);
