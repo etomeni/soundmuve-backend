@@ -83,6 +83,45 @@ export const getAllReleaseCtrl = async (req: Request, res: Response, next: NextF
     }
 }
 
+// Get release by id
+export const getReleaseByIdCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'sent data validation error!', 
+                ...errors
+            });
+        };
+
+        // const _id = req.body.authMiddlewareParam._id;
+
+        const release_id = req.query.id || '';
+
+        const release = await releaseModel.findById(release_id)
+        if (!release) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to resolve release"
+            });
+        };
+
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: release,
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
 // search releases
 export const searchReleasesCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -140,3 +179,55 @@ export const searchReleasesCtrl = async (req: Request, res: Response, next: Next
     }
 }
 
+
+// Get release by id
+export const updateReleaseStatusCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'sent data validation error!', 
+                ...errors
+            });
+        };
+
+        // const _id = req.body.authMiddlewareParam._id;
+
+        const release_id = req.body.release_id || '';
+        const status = req.body.status || '';
+        const linkTreeUrl = req.body.linkTreeUrl || '';
+
+        // Find the release and update the specific song
+        const updatedRelease = await releaseModel.findOneAndUpdate(
+            { _id: release_id },
+            { 
+                $set: { 
+                    status: status,
+                    liveUrl: linkTreeUrl
+                } // $ references the matched song
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedRelease) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to resolve release"
+            });
+        };
+
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: updatedRelease,
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}

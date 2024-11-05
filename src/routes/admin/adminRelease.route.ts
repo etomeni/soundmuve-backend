@@ -11,7 +11,9 @@ import adminAuthMiddleware from '@/middleware/adminAuth.js';
 // Controllers
 import { 
     getAllReleaseCtrl,
-    searchReleasesCtrl
+    getReleaseByIdCtrl,
+    searchReleasesCtrl,
+    updateReleaseStatusCtrl
 } from '@/controllers/admin/adminReleaseController.js';
 
 
@@ -41,6 +43,19 @@ router.get(
 );
 
 router.get(
+    "/release-by-id",
+    [
+        query('id')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('Status is required.'),
+
+        // authMiddleware,
+        adminAuthMiddleware,
+    ],
+    getReleaseByIdCtrl
+);
+
+router.get(
     "/search",
     [
         query('search')
@@ -64,6 +79,27 @@ router.get(
         adminAuthMiddleware,
     ],
     searchReleasesCtrl
+);
+
+router.post(
+    "/update-status",
+    [
+        body('release_id')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('Release _id is required.'),
+
+        body('status')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('Status is required.'),
+
+        // body('linkTreeUrl')
+        //     .exists().withMessage('Page is required')
+        //     .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+
+        // authMiddleware,
+        adminAuthMiddleware,
+    ],
+    updateReleaseStatusCtrl
 );
 
 
