@@ -18,6 +18,7 @@ import payoutDetailsRoutes from './routes/payout-details.js';
 import recordLabelRoutes from './routes/record-label.js';
 import cartRoutes from './routes/cart.route.js';
 import adminReleasesRoutes from './routes/admin/adminRelease.route.js';
+import adminRoutes from './routes/admin/admin.route.js';
 
 import { get404, get500 } from './controllers/error.js';
 
@@ -45,7 +46,7 @@ app.use(helmet());
 app.use(cors());
 app.use(compression());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3050;
 // const PORT = 5000;
 
 // app.use(fileUpload());
@@ -64,6 +65,7 @@ app.use('/api/v1/checkout', cartRoutes);
 // app.use('/api/admin', adminRoutes);
 // app.use('/api/v1/uploads', express.static('uploads'));
 
+app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/admin/releases', adminReleasesRoutes);
 
 

@@ -53,14 +53,15 @@ export const signupController = async (req: Request, res: Response, next: NextFu
             });
         }
 
+        // updated 8 nov. 2024 to make the location optional
         // Check if user location is included
-        if (!req.body.location) {
-            return res.status(401).json({
-                status: false,
-                statusCode: 401,
-                message: 'Must include user location details to proceed.'
-            });
-        }
+        // if (!req.body.location) {
+        //     return res.status(401).json({
+        //         status: false,
+        //         statusCode: 401,
+        //         message: 'Must include user location details to proceed.'
+        //     });
+        // }
 
         // generate hashed password to keep the password secret always
         const hashedPassword = await bcryptjs.hash(req.body.password, 12);
@@ -85,7 +86,7 @@ export const signupController = async (req: Request, res: Response, next: NextFu
             //     isKycSubmitted: false,
             //     securityQuestions: []
             // },
-            location: req.body.location,
+            location: req.body.location || null,
         });
         const result = await newUser.save();
         if (!result._id) {

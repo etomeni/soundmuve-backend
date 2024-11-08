@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Admin Role Assigned</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E2CBA2;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: #FFFFE6;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        p {
+            color: #555555;
+            line-height: 1.8;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #FFB01F;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        a.button {
+            color: #FFFFE6;
+            text-decoration: none;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+        }
+        .credentials {
+            background-color: #f9f9f9;
+            border: 1px solid #FFB01F;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .credentials p {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Admin Team!</h1>
+        <p>Hello {{name}},</p>
+        <p>We are pleased to inform you that you have been granted admin privileges on our website. As an admin, you now have access to additional tools and controls to help manage the platform effectively.</p>
+
+
+        <p>Please ensure you understand your new responsibilities and use your privileges responsibly. You can log in to your account to explore your new permissions and get started:</p>
+        <p><b>Note: </b> To login, use your existing soundmuve login credentials.</p>
+
+        <a href="{{adminDashboardUrl}}" class="button">Log in to Admin Dashboard</a>
+
+        <p>If you have any questions about your new role or need assistance, please feel free to reach out to us.</p>
+
+        <div class="footer">
+            <p>&copy; {{year}} Soundmuve. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

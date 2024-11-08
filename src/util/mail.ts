@@ -371,3 +371,270 @@ export const sendNewPasswordConfirmationMail = (
         }
     }
 }
+
+export const sendNewAdminNotificationMail = (
+    email: string, name: string, // password: string,
+    adminDashboardUrl: string
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/adminRoleNotification.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{email}}/g, email)
+        // .replace(/{{password}}/g, password)
+        .replace(/{{adminDashboardUrl}}/g, adminDashboardUrl)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hello ${name},
+
+            We are pleased to inform you that you have been granted admin privileges on our website. As an admin, you now have access to additional tools and controls to help manage the platform effectively.
+
+            Please ensure you understand your new responsibilities and use your privileges responsibly. You can log in to your account to explore your new permissions and get started:
+            
+            Note: To login, use your existing soundmuve login credentials.
+            ${ adminDashboardUrl }
+
+            If you have any questions about your new role or need assistance, please feel free to reach out to us.
+
+
+            Best regards,
+            SoundMuve
+
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "You Have Been Granted Admin Access!",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}
+
+export const sendNewAdminNotificationMailWithCredentials = (
+    email: string, name: string, password: string,
+    adminDashboardUrl: string
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/adminRoleNotificationWithCredentials.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{email}}/g, email)
+        .replace(/{{password}}/g, password)
+        .replace(/{{adminDashboardUrl}}/g, adminDashboardUrl)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hello ${name},
+
+            We are pleased to inform you that you have been granted admin privileges on our website. As an admin, you now have access to additional tools and controls to help manage the platform effectively.
+
+            Here are your new login credentials:
+            Email: ${email}
+            Password: ${password}
+
+            Please ensure you understand your new responsibilities and use your privileges responsibly. You can log in to your account to explore your new permissions and get started:
+
+            ${ adminDashboardUrl }
+
+            If you have any questions about your new role or need assistance, please feel free to reach out to us.
+
+
+            Best regards,
+            SoundMuve
+
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "You Have Been Granted Admin Access!",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}
+
+export const sendAdminRemovalNotificationMail = (
+    email: string, name: string
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/adminRoleRemovalNotification.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hello ${name},
+
+            We wanted to let you know that your admin privileges on our website have been removed. You will no longer have access to admin-specific tools and features.
+
+            If you believe this change was made in error or have any questions, please reach out to our support team for assistance.
+
+            Thank you for your contributions as an admin, and we hope you continue to enjoy using our services.
+
+            Best regards,
+            SoundMuve
+
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "Admin Privileges Removed",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}
+
+export const sendAccountBlockedNotificationMail = (
+    email: string, name: string, soundmuveUrl: string
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/accountBlockedNotification.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hello ${name},
+
+            We wanted to inform you that your account on our website has been blocked due to a violation of our terms of service.
+
+            If you believe this action was taken in error or would like more details, please reach out to our support team.
+
+            For assistance, please contact support here:
+            ${soundmuveUrl}
+
+            Thank you for your understanding.
+
+            Best regards,
+            SoundMuve
+
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "Your Account has been restricted",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}
