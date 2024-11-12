@@ -66,6 +66,109 @@ export const getReleaseCtrl = async (req: Request, res: Response, next: NextFunc
     }
 }
 
+// Get record label artsit releases
+export const getRL_ArtistReleasesCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'sent data validation error!', 
+                ...errors
+            });
+        };
+
+        const _id = req.body.authMiddlewareParam._id;
+
+        const page = parseInt(req.query.page as string) || 1; // Current page number, default is 1
+        const limit = parseInt(req.query.limit as string) || 20; // Number of items per page, default is 20
+        const artist_id = req.query.artist_id;
+
+        // Find only the releases where releaseType is "album"
+        const singleRelases = await releaseModel.find({ recordLabelArtist_id: artist_id, user_id: _id })
+            .sort({ createdAt: -1 })  // Sort by createdAt in descending order
+            .limit(limit) // Set the number of items per page
+            .skip((page - 1) * limit) // Skip items to create pages
+            .exec();
+
+        if (!singleRelases) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to resolve single releases"
+            });
+        };
+
+        // Count total single for the user to support pagination
+        const totalSingle = await releaseModel.countDocuments({ recordLabelArtist_id: artist_id, user_id: _id });
+
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: {
+                relases: singleRelases,
+
+                totalPages: Math.ceil(totalSingle / limit), // Calculate total pages
+                currentPage: page,
+                totalRecords: totalSingle,
+            },
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+// Get record label artsit releases
+export const getRL_ArtistSongsDataCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'sent data validation error!', 
+                ...errors
+            });
+        };
+
+        const _id = req.body.authMiddlewareParam._id;
+        const artist_id = req.query.artist_id;
+
+        // Count total single for the user to support pagination
+        const totalSingles = await releaseModel.countDocuments({ 
+            recordLabelArtist_id: artist_id, 
+            user_id: _id,
+            releaseType: "single"
+        });
+
+        const totalAlbums = await releaseModel.countDocuments({ 
+            recordLabelArtist_id: artist_id, 
+            user_id: _id,
+            releaseType: "album"
+        });
+
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: {
+                revenue: 0,
+                single: totalSingles,
+                album: totalAlbums,
+            },
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+
 
 
 // SINGLE RELEASES

@@ -23,6 +23,8 @@ import {
     createAlbumRelease5Ctrl,
 
     searchSpotifyArtistCtrl,
+    getRL_ArtistReleasesCtrl,
+    getRL_ArtistSongsDataCtrl
 } from '@/controllers/releaseController.js';
 import { upload_diskStorage } from '@/middleware/multerFile.js';
 import { getSpotifyAccessToken } from '@/middleware/sportify_appleMusic.js';
@@ -49,6 +51,36 @@ router.get(
         authMiddleware,
     ],
     getReleaseCtrl
+);
+
+router.get(
+    "/rl-artist",
+    [
+        query('page')
+            .exists().withMessage('Page is required')
+            .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+
+        query('limit')
+            .exists().withMessage('Limit is required')
+            .isInt({ min: 1 }).withMessage('Limit must be a positive integer'),
+
+        query('artist_id')
+            .exists().withMessage('artist _id is required'),
+
+        authMiddleware,
+    ],
+    getRL_ArtistReleasesCtrl
+);
+
+router.get(
+    "/rl-artist-data",
+    [
+        query('artist_id')
+            .exists().withMessage('artist _id is required'),
+
+        authMiddleware,
+    ],
+    getRL_ArtistSongsDataCtrl
 );
 
 // Validation for artistInterface

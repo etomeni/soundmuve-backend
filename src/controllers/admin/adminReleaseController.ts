@@ -180,7 +180,7 @@ export const searchReleasesCtrl = async (req: Request, res: Response, next: Next
 }
 
 
-// Get release by id
+// update release status 
 export const updateReleaseStatusCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const errors = validationResult(req);

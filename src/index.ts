@@ -46,7 +46,7 @@ app.use(helmet());
 app.use(cors());
 app.use(compression());
 
-const PORT = process.env.PORT || 3050;
+const PORT = process.env.PORT || 3000;
 // const PORT = 5000;
 
 // app.use(fileUpload());
