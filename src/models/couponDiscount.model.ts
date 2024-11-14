@@ -72,6 +72,7 @@ const couponDiscountSchema = new Schema<couponInterface>(
         },
         status: {
             type: String, 
+            default: "Pending"
         }
     },
     { timestamps: true }

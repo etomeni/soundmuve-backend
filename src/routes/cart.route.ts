@@ -15,7 +15,8 @@ import {
     couponDiscountCtrl,
     getPaymentIntentAndKeysCtrl,
     successfulPaymentCtrl,
-    checkReleaseCartCtrl
+    checkReleaseCartCtrl,
+    applyPromoCodeCtrl,
 } from '../controllers/cartController.js';
 
 
@@ -102,7 +103,7 @@ router.delete(
     removeFromCartCtrl
 );
 
-// remove item from cart
+// discount-application
 router.post(
     "/discount-application",
     [
@@ -130,6 +131,25 @@ router.post(
     couponDiscountCtrl
 );
 
+// apply-promo-code
+router.post(
+    "/apply-promo-code",
+    [
+        // Youtube link should be a valid URL format
+        body('promoCode')
+            .isString()
+            .notEmpty()
+            .withMessage('Coupon Code is required.'),
+
+        body('cartItems')
+            .isArray({ min: 1 })
+            .withMessage('Cart can not be empty.'),
+
+        authMiddleware,
+    ],
+    applyPromoCodeCtrl
+);
+
 // create payment intent
 router.post(
     "/create-payment-intent",
@@ -143,7 +163,6 @@ router.post(
     ],
     getPaymentIntentAndKeysCtrl
 );
-
 
 
 // successful payment
@@ -176,8 +195,7 @@ router.post(
     successfulPaymentCtrl
 );
 
-
-// add item to cart
+// check-release-cart
 router.post(
     "/check-release-cart",
     [

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
 import { validationResult } from "express-validator";
 import Stripe from 'stripe';
+import moment from "moment";
 
 import { cartItemInterface } from "@/typeInterfaces/cart.interface.js";
 import { cartModel } from "@/models/cart.model.js";
@@ -175,7 +176,9 @@ export const couponDiscountCtrl = async (req: Request, res: Response, next: Next
             youtubeLink: req.body.youtubeLink,
             instagramFacebookLink: req.body.instagramFacebookLink,
             xLink: req.body.xLink,
+            status: "Pending"
         };
+
 
         const newCouponDiscount = new couponDiscountModel(data2db);
         const newCouponDiscountResponds = await newCouponDiscount.save();
@@ -192,6 +195,108 @@ export const couponDiscountCtrl = async (req: Request, res: Response, next: Next
             status: true,
             statusCode: 201,
             result: newCouponDiscountResponds,
+            message: "Successful!"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+// discount application - applying to get discount on releases.
+export const applyPromoCodeCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: 'sent data validation error!', 
+                ...errors
+            });
+        };
+
+        const user_id = req.body.authMiddlewareParam._id;
+        // const user_email = req.body.authMiddlewareParam.email;
+
+        const promoCode: string = req.body.promoCode;
+        const cartItems: cartItemInterface[] = req.body.cartItems;
+
+
+        const couponApplication = await couponDiscountModel.findOne({code: promoCode});
+        if (!couponApplication) {
+            return res.status(400).json({
+                status: false,
+                statusCode: 400,
+                message: "Incorrect coupon code."
+            });
+        }
+
+        if (couponApplication.user_id != user_id) {
+            return res.status(400).json({
+                status: false,
+                statusCode: 400,
+                message: "This coupon code can only be used by the user that applied for it."
+            });
+        }
+
+        if (couponApplication.status == "Used" || couponApplication.status == "Rejected" || couponApplication.status == "Pending") {
+            return res.status(400).json({
+                status: false,
+                statusCode: 400,
+                message: "This coupon code is no longer valid."
+            });
+        }
+
+        // Calculate the total price for each array
+        const sentCartItemsTotalPrice = cartItems.reduce((acc, item) => acc + item.price, 0);
+        const couponTotalPrice = couponApplication.cartItems.reduce((acc, item) => acc + item.price, 0);
+
+        // Check if the total prices are equal
+        const isPriceEqual = sentCartItemsTotalPrice === couponTotalPrice;
+
+        // Extract unique release IDs from both arrays
+        const sentCartItems = new Set(cartItems.map(item => item.release_id));
+        const couponCartItems = new Set(couponApplication.cartItems.map(item => item.release_id));
+
+        let hasSameReleaseId = true;
+
+        // Check if both sets have the same size and identical elements
+        if (sentCartItems.size !== couponCartItems.size) hasSameReleaseId = false;
+        for (let id of sentCartItems) {
+            if (!couponCartItems.has(id)) hasSameReleaseId = false;
+        }
+
+        // true if conditions are met, false otherwise
+        const isBothItemsEqual = isPriceEqual && hasSameReleaseId;
+
+        if (!isBothItemsEqual) {
+            return res.status(400).json({
+                status: false,
+                statusCode: 400,
+                message: "The coupon code was applied on the wrong cart items."
+            });
+        }
+
+        const updatedCoupon = await couponApplication.updateOne({
+            $set: { 
+                status: "Used",
+                usedDate: moment().format()
+            }
+        });
+        // Check if the update was successful
+        if (!(updatedCoupon.matchedCount > 0 && updatedCoupon.modifiedCount > 0)) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "Unable complete request."
+            });
+        }
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: couponApplication,
             message: "Successful!"
         });
     } catch (error: any) {
