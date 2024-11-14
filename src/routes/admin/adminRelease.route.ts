@@ -47,7 +47,7 @@ router.get(
     [
         query('id')
             .isString().trim().isLength({ min: 3 })
-            .withMessage('Status is required.'),
+            .withMessage('Release _id is required.'),
 
         // authMiddleware,
         adminAuthMiddleware,

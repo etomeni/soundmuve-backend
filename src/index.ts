@@ -19,6 +19,7 @@ import recordLabelRoutes from './routes/record-label.js';
 import cartRoutes from './routes/cart.route.js';
 import adminReleasesRoutes from './routes/admin/adminRelease.route.js';
 import adminRoutes from './routes/admin/admin.route.js';
+import adminCouponRoutes from './routes/admin/adminCoupon.route.js';
 
 import { get404, get500 } from './controllers/error.js';
 
@@ -67,6 +68,7 @@ app.use('/api/v1/checkout', cartRoutes);
 
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/admin/releases', adminReleasesRoutes);
+app.use('/api/v1/admin/coupon', adminCouponRoutes);
 
 
 app.use(get404);

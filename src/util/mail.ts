@@ -638,3 +638,140 @@ export const sendAccountBlockedNotificationMail = (
         }
     }
 }
+
+export const sendCouponApprovalNotificationMail = (
+    email: string, name: string, 
+    couponCode: string, discountPercentage: string,
+    discountedAmount: string, payableAmount: string,
+    soundmuveUrl: string,
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/adminCouponApprovalNotification.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{couponCode}}/g, couponCode)
+        .replace(/{{discountPercentage}}/g, discountPercentage)
+        .replace(/{{discountedAmount}}/g, discountedAmount)
+        .replace(/{{payableAmount}}/g, payableAmount)
+        .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hello ${name},
+
+            We're excited to inform you that your application for a discounted release has been approved! Here are the details:
+
+            Coupon Code: ${couponCode}
+            Discount Percentage: ${discountPercentage}%
+            Discounted Amount: $${discountedAmount}
+            Payable Amount: $${payableAmount}
+
+            Use this coupon during checkout to enjoy your discount!
+
+            Start a release here:
+            ${soundmuveUrl}
+
+            If you have any questions, feel free to contact our support team.
+
+            Best regards,
+            SoundMuve
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "Discounted Release Application Approved!",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}
+
+export const sendCouponRejectionNotificationMail = (
+    email: string, name: string, 
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/adminCouponRejectionNotification.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        // .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hello ${name},
+
+            Thank you for applying for a discounted release on our website. After careful review, we regret to inform you that your application for a discount has not been approved at this time.
+
+            If you have any questions or would like further clarification, please feel free to reach out to our support team. We appreciate your interest in our services and hope to keep serving you better.
+
+            Thank you for your understanding.
+
+            Best regards,
+            SoundMuve
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "Discounted Release Application Status",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}

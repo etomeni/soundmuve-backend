@@ -170,6 +170,7 @@ export const couponDiscountCtrl = async (req: Request, res: Response, next: Next
 
         const data2db = {
             user_id, user_email,
+            user_name: req.body.user_name,
             cartItems: req.body.cartItems,
             youtubeLink: req.body.youtubeLink,
             instagramFacebookLink: req.body.instagramFacebookLink,
