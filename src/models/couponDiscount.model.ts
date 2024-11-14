@@ -51,7 +51,7 @@ const couponDiscountSchema = new Schema<couponInterface>(
         code: { 
             type: String, 
             // required: true, 
-            unique: true 
+            // unique: true 
         }, // Promo code string
         discount: { 
             type: Number, 
