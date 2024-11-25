@@ -13,7 +13,6 @@ This values are required in .env file to run this application.
     HOST_EMAIL
     HOST_PASSWORD
     HOST_SENDER
-    EMAIL_PASSWORD
 
     CLOUDINARY_CLOUD_NAME
     CLOUDINARY_API_KEY
