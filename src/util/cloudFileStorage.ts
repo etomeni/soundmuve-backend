@@ -18,12 +18,12 @@ cloudinary.config({
 // }); 
 
 
-export async function cloudinaryImageUpload(filePath: string, folderName = 'recordLabelLogo') {
+export async function cloudinaryImageUpload(filePath: string, folderName = 'images') {
     const result = await cloudinary.uploader.upload(
         filePath, 
         {
             folder: folderName,
-            allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
+            // allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
         }
     );
      
