@@ -12,6 +12,7 @@ import { sendEmailVerificationCode, sendLoginNotification, sendNewPasswordConfir
 import { cloudinaryImageUpload } from "@/util/cloudFileStorage.js";
 import { verifyEmailToken } from "@/util/resources.js";
 import fs from "fs";
+import { logActivity } from "@/util/activityLogFn.js";
 
 
 const secretForToken = process.env.JWT_SECRET;
@@ -117,6 +118,8 @@ export const signupController = async (req: Request, res: Response, next: NextFu
             `${secretForToken}`,
             { expiresIn: '7d' }
         );
+
+        logActivity(req, "Signup", result._id);
 
         return res.status(201).json({
             status: true,
@@ -318,6 +321,8 @@ export const loginController = async (req: Request, res: Response, next: NextFun
             `${secretForToken}`,
             { expiresIn: '7d' }
         );
+
+        logActivity(req, "login", user._id);
 
         return res.status(201).json({
             status: true,

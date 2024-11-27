@@ -6,6 +6,7 @@ import { validationResult } from "express-validator";
 import { releaseModel } from "@/models/release.model.js";
 import { cloudinaryAudioUpload } from "@/util/cloudFileStorage.js";
 import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
+import { logActivity } from "@/util/activityLogFn.js";
 
 
 // Get releases
@@ -46,7 +47,7 @@ export const getReleaseCtrl = async (req: Request, res: Response, next: NextFunc
         // Count total single for the user to support pagination
         const totalSingle = await releaseModel.countDocuments({ releaseType, user_id: _id });
 
-
+        logActivity(req, "Get Releases", _id);
         // Response with paginated data
         return res.status(201).json({
             status: true,
@@ -103,6 +104,8 @@ export const getRL_ArtistReleasesCtrl = async (req: Request, res: Response, next
         // Count total single for the user to support pagination
         const totalSingle = await releaseModel.countDocuments({ recordLabelArtist_id: artist_id, user_id: _id });
 
+        logActivity(req, "Get record label artsit releases", _id);
+
         // Response with paginated data
         return res.status(201).json({
             status: true,
@@ -151,6 +154,8 @@ export const getRL_ArtistSongsDataCtrl = async (req: Request, res: Response, nex
             releaseType: "album"
         });
 
+
+        logActivity(req, "Get record label artsit song counts", _id);
         // Response with paginated data
         return res.status(201).json({
             status: true,
@@ -183,9 +188,11 @@ export const createSingleReleaseCtrl = async (req: Request, res: Response, next:
                 ...errors
             });
         };
+
+        const _id = req.body.authMiddlewareParam._id;
         
         const releaseData = {
-            user_id: req.body.authMiddlewareParam._id,
+            user_id: _id,
             email: req.body.authMiddlewareParam.email,
 
             releaseType: "single",
@@ -244,6 +251,8 @@ export const createSingleReleaseCtrl = async (req: Request, res: Response, next:
                 message: "something went wrong."
             });
         }
+
+        logActivity(req, "Create single release", _id);
 
         return res.status(201).json({
             status: true,
@@ -341,6 +350,8 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
         fs.unlinkSync(songAudio);
         fs.unlinkSync(coverArt);
         
+        logActivity(req, "Create single release 2", '');
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -395,6 +406,7 @@ export const getAlbumReleaseCtrl = async (req: Request, res: Response, next: Nex
         // Count total albums for the user to support pagination
         const totalAlbums = await releaseModel.countDocuments({ releaseType: 'album', user_id: _id });
 
+        logActivity(req, "Get album releases", _id);
 
         // Response with paginated data
         return res.status(201).json({
@@ -427,6 +439,8 @@ export const createAlbumRelease1Ctrl = async (req: Request, res: Response, next:
             });
         };
         
+        const _id = req.body.authMiddlewareParam._id;
+
         const releaseData = {
             user_id: req.body.authMiddlewareParam._id,
             email: req.body.authMiddlewareParam.email,
@@ -488,6 +502,8 @@ export const createAlbumRelease1Ctrl = async (req: Request, res: Response, next:
             });
         }
 
+        logActivity(req, "Create album release 1", _id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -512,6 +528,7 @@ export const createAlbumRelease2Ctrl = async (req: Request, res: Response, next:
             });
         };
 
+        const _id = req.body.authMiddlewareParam._id;
         const release_id = req.body.release_id;
               
         const formData = {
@@ -551,6 +568,7 @@ export const createAlbumRelease2Ctrl = async (req: Request, res: Response, next:
             });
         }
 
+        logActivity(req, "Create album release 2", _id);
 
         return res.status(201).json({
             status: true,
@@ -576,6 +594,7 @@ export const createAlbumRelease3Ctrl = async (req: Request, res: Response, next:
             });
         };
 
+        const _id = req.body.authMiddlewareParam._id;
         const release_id = req.body.release_id;
               
         const formData = {
@@ -614,6 +633,7 @@ export const createAlbumRelease3Ctrl = async (req: Request, res: Response, next:
             });
         }
 
+        logActivity(req, "Create album release 3", _id);
 
         return res.status(201).json({
             status: true,
@@ -709,6 +729,8 @@ export const createAlbumRelease4Ctrl = async (req: Request, res: Response, next:
             });
         }
 
+        logActivity(req, "Create album release 4 - add Song", releaseData.user_id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -802,6 +824,8 @@ export const createAlbumRelease4EditAlbumSongsCtrl = async (req: Request, res: R
             });
         }
 
+        logActivity(req, "Create album release 4 - edit Song", releaseData.user_id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -855,6 +879,8 @@ export const createAlbumRelease4DeleteAlbumSongsCtrl = async (req: Request, res:
                 message: "Release or song not found"
             });
         }
+
+        logActivity(req, "Create album release 4 - delete Song", updatedRelease.user_id);
 
         return res.status(201).json({
             status: true,
@@ -922,6 +948,8 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
         // Optionally delete the local files after uploading to Cloudinary
         fs.unlinkSync(coverArt);
         
+        logActivity(req, "Create album release 5 - art work cover", updatedRelease.user_id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,

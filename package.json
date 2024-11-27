@@ -45,6 +45,7 @@
     "nodemailer": "^6.9.13",
     "qs": "^6.13.0",
     "stripe": "^17.2.1",
+    "ua-parser-js": "^2.0.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

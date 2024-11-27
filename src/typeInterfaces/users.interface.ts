@@ -16,6 +16,17 @@ export type locationInterface = {
     lon: number,
 };
 
+export type userLocationInterface = {
+    ip: string,
+    // usedIps: string[],
+    city: string,
+    region: string,
+    country: string,
+    isp: string,
+    lat: number,
+    lon: number,
+};
+
 export type userInterface = {
     _id?: string;
     role: 'user' | 'admin',
