@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
 import { validationResult } from "express-validator";
-import mongoose from 'mongoose';
-import nodemailer from 'nodemailer';
 
-import { contactUsModel, newsLetterModel } from "@/models/contact.model.js";
+import { contactUsModel } from "@/models/contact.model.js";
+import { newsLetterSubscriberModel } from "@/models/newsletter.model.js";
 import { sendAdminUserContactUsNotification, sendUserContactMailAutoResponse } from "@/util/mail.js";
 
 
@@ -19,7 +18,7 @@ export const subscribeNewsletterCtrl = async (req: Request, res: Response, next:
             });
         };
 
-        const newSubscriber = new newsLetterModel({ email: req.body.email });
+        const newSubscriber = new newsLetterSubscriberModel({ email: req.body.email });
         const newSubscriberResponds = await newSubscriber.save();
 
         if (!newSubscriberResponds) {
@@ -70,7 +69,7 @@ export const contactUsCtrl = async (req: Request, res: Response, next: NextFunct
         }
 
         sendUserContactMailAutoResponse(email, name, message);
-        // sendAdminUserContactUsNotification(email, name, message);
+        sendAdminUserContactUsNotification(email, name, message);
 
         return res.status(201).json({
             status: true,

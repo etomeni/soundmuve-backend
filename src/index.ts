@@ -20,6 +20,8 @@ import cartRoutes from './routes/cart.route.js';
 import adminReleasesRoutes from './routes/admin/adminRelease.route.js';
 import adminRoutes from './routes/admin/admin.route.js';
 import adminCouponRoutes from './routes/admin/adminCoupon.route.js';
+import adminContactRoutes from './routes/admin/adminContactRoute.js';
+import adminNewsletterRoutes from './routes/admin/adminNewsletterRoute.js';
 
 import { get404, get500 } from './controllers/error.js';
 
@@ -52,7 +54,8 @@ const PORT = process.env.PORT || 3000;
 
 // app.use(fileUpload());
 // app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
+app.use(bodyParser.json({limit: "50mb"}));
 
 // app.use(getSource);
 // app.use('/api', apiV1Routes);
@@ -69,6 +72,8 @@ app.use('/api/v1/checkout', cartRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/admin/releases', adminReleasesRoutes);
 app.use('/api/v1/admin/coupon', adminCouponRoutes);
+app.use('/api/v1/admin/contact', adminContactRoutes);
+app.use('/api/v1/admin/newsletter', adminNewsletterRoutes);
 
 
 app.use(get404);

@@ -22,6 +22,11 @@ const mailTransporter = () => {
     return mailTransporter;
 }
 
+const formatMessageForEmail = (message: string) => {
+    return message.replace(/\n/g, '<br>');
+};
+  
+
 export const sendEmailVerificationCode = (email: string, name = "", subject = "Email Verification Code") => {
     try {
         const codeLength = 4;
@@ -112,7 +117,7 @@ export const sendUserContactMailAutoResponse = (email: string, name: string, mes
         const Htmltemplate = data.replace(/{{name}}/g, name)
         .replace(/{{email}}/g, email)
         .replace(/{{year}}/g, year)
-        .replace(/{{message}}/g, message);
+        .replace(/{{message}}/g, formatMessageForEmail(message));
         
         // console.log(Htmltemplate);
         
@@ -125,7 +130,8 @@ export const sendUserContactMailAutoResponse = (email: string, name: string, mes
 
             Name: ${name}
             Email: ${email}
-            Message: ${message}
+            Message: 
+            ${message}
             If you have any urgent questions, feel free to reply to this email or contact us directly at help@soundmuve.com.
 
             Thank you again for getting in touch!
@@ -147,7 +153,7 @@ export const sendUserContactMailAutoResponse = (email: string, name: string, mes
                 return {
                     status: false,
                     error: err,
-                    message: 'an error occured while sending verification mail.',
+                    message: 'an error occured while sending mail.',
                 }
             }
         });
@@ -160,7 +166,129 @@ export const sendUserContactMailAutoResponse = (email: string, name: string, mes
         return {
             status: false,
             error,
-            message: 'an error occured while sending verification email.',
+            message: 'an error occured while sending email.',
+        }
+    }
+}
+
+export const sendUserAdminContactUsReplyMail = (email: string, name: string, message: string) => {
+    try {
+        const mailTransporter = nodemailer.createTransport({
+            // service: "gmail",
+            host:  process.env.HOST_SENDER,
+            port: 465,
+            auth: {
+                user: process.env.HOST_EMAIL,
+                pass: process.env.HOST_PASSWORD
+            }
+        });
+
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/adminContactUsReply.html", 'utf8');
+
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        // .replace(/{{email}}/g, email)
+        .replace(/{{year}}/g, year)
+        .replace(/{{message}}/g, formatMessageForEmail(message));
+        
+        // console.log(Htmltemplate);
+        
+        const mailText = `
+            Hi ${name},
+
+            Thank you for reaching out to us. We've carefully reviewed your message, and here is our response:
+
+            Our Response:
+            ${message}
+
+            If you have any further questions or need clarification, please feel free to reply to this email or contact us at [Support Email] or [Support Phone Number].
+
+            Thank you for choosing [Your Company Name]. We're here to help!
+
+            Best regards,
+            Soundmuve
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "Response to Your Inquiry",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter.sendMail(details, (err, info) => {
+            // console.log(info);
+
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}
+
+export const sendNewsletterMail = (
+    recipient: string, title: string, message: string
+) => {
+    try {
+        const mailTransporter = nodemailer.createTransport({
+            // service: "gmail",
+            host:  process.env.HOST_SENDER,
+            port: 465,
+            auth: {
+                user: process.env.HOST_EMAIL,
+                pass: process.env.HOST_PASSWORD
+            }
+        });
+
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: recipient,
+            subject: title,
+            text: '',
+            html: message
+        };
+
+        mailTransporter.sendMail(details, (err, info) => {
+            console.log(info);
+            
+            if (err) {
+                console.log(err);
+                
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
         }
     }
 }
@@ -205,12 +333,15 @@ export const sendAdminUserContactUsNotification = (email: string, name: string, 
         const details = {
             from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
             to: `help@soundmuve.com`,
+            replyTo: email,
             subject: "New Contact Form Submission",
             text: mailText,
             html: Htmltemplate
         };
 
-        mailTransporter.sendMail(details, (err) => {
+        mailTransporter.sendMail(details, (err, info) => {
+            // console.log(info);
+            
             if (err) {
                 return {
                     status: false,

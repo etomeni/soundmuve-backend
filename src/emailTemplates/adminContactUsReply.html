@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Response to Your Inquiry</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E2CBA2;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: #FFFFE6;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        p {
+            color: #555555;
+            line-height: 1.8;
+        }
+        .response {
+            background-color: #f9f9f9;
+            border: 1px solid #FFB01F;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- <h1>Response to Your Inquiry</h1> -->
+        <p>Hello {{name}},</p>
+        <p>
+            Thank you for reaching out to us. 
+            We've carefully reviewed your message, 
+            and here is our response:
+        </p>
+
+        <!-- <div class="response">
+            <p><strong>Your Message:</strong></p>
+            <p>"[User's Message]"</p>
+            <p><strong>Our Response:</strong></p>
+            <p>"[Company's Response]"</p>
+        </div> -->
+
+        <div class="response">
+            <p>{{message}}</p>
+        </div>
+
+        <p>
+            If you have any further questions or need clarification, 
+            please feel free to reply to this email or use the contact form.
+        </p>
+
+        <p>Thank you for choosing Soundmuve. We're here to help!</p>
+
+        <div class="footer">
+            <p>&copy; {{year}} Soundmuve. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

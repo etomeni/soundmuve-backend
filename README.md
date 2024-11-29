@@ -64,7 +64,7 @@ Follow this steps to deploy the application
 2. **Access Your Droplet**:
    - Use the IP address provided by DigitalOcean to connect to your droplet via SSH:
     ```bash
-        ssh root@your_droplet_ip
+        ssh -i ~/.ssh/soundmuve_key root@your_droplet_ip
     ```
 
 ---
@@ -277,7 +277,7 @@ Application is live on DigitalOcean!
 2. **Log In to the Droplet**:
    - Use SSH to connect:
      ```bash
-        ssh root@your_droplet_ip
+        ssh -i ~/.ssh/soundmuve_key root@your_droplet_ip
      ```
 
 ---
