@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
+import nodemailer from 'nodemailer';
 
 import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
 import { sendNewsletterMail } from "@/util/mail.js";
@@ -153,7 +154,7 @@ export const sendNewsletterCtrl = async (req: Request, res: Response, next: Next
         const newsLetter: newsLetterInterface = {
             title: req.body.title,
             message: req.body.message,
-            recipients: allEmails,
+            recipients: [],
             failedRecipients:[],
             sentBy: {
                 user_id: _id,
@@ -161,14 +162,6 @@ export const sendNewsletterCtrl = async (req: Request, res: Response, next: Next
                 name: req.body.user_name
             }
         };
-
-        // Send emails
-        for (const email of allEmails) {
-            const response = sendNewsletterMail(email, newsLetter.title, newsLetter.message);
-            if (!response.status) {
-                newsLetter.failedRecipients.push(email);
-            }
-        }
 
 
         const newNewsLetter = new newsLetterModel(newsLetter);
@@ -180,6 +173,61 @@ export const sendNewsletterCtrl = async (req: Request, res: Response, next: Next
                 message: 'server error, try again after some time.'
             });
         }
+
+        const recipients = allEmails.map(email => email).join(',');
+
+        // console.log(allEmails);
+        // Send emails
+        // for (const email of mails) {
+        //     const response = sendNewsletterMail(email, newsLetter.title, newsLetter.message);
+        //     if (!response.status) {
+        //         newsLetter.failedRecipients.push(email);
+        //     }
+        // }
+
+
+        const mailTransporter = nodemailer.createTransport({
+            // service: "gmail",
+            host:  process.env.HOST_SENDER,
+            port: 465,
+            auth: {
+                user: process.env.HOST_EMAIL,
+                pass: process.env.HOST_PASSWORD
+            }
+        });
+
+        mailTransporter.sendMail(
+            {
+                from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+                to: recipients,
+                subject: newsLetter.title,
+                text: '',
+                html: newsLetter.message
+            }, 
+            async (err, info) => {
+                // console.log(info);
+
+                if (info) {
+                    const update = await result.updateOne({
+                        failedRecipients:  info.rejected,
+                        recipients: info.accepted,
+                    });
+
+                    // console.log(update);
+                }
+                
+                if (err) {
+                    console.log(err);
+                    
+                    return {
+                        status: false,
+                        error: err,
+                        message: 'an error occured while sending mail.',
+                    }
+                }
+            }
+        );
+
 
         logActivity(req, `Sent out newsletter message`, _id);
 

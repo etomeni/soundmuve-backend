@@ -5,8 +5,9 @@ import bodyParser from 'body-parser';
 const router = express.Router();
 
 // middleWares
-import authMiddleware from '@/middleware/auth.js';
 import adminAuthMiddleware from '@/middleware/adminAuth.js';
+import routeValidationResult from '@/middleware/routeValidationResult.js';
+
 
 // Controllers
 import { 
@@ -15,6 +16,9 @@ import {
     getAllAdminUsersCtrl,
     blockRemoveAdminCtrl,
 } from '@/controllers/admin/adminAuthController.js';
+import { 
+    getActivityLogCtrl 
+} from '@/controllers/admin/adminGeneralController.js';
 
 
 router.use(bodyParser.json());
@@ -108,6 +112,28 @@ router.patch(
         adminAuthMiddleware,
     ],
     blockRemoveAdminCtrl
+);
+
+
+router.get(
+    "/activity-log",
+    [
+        query('user_id')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('user_id is required.'),
+
+        query('page')
+            .exists().withMessage('Page is required')
+            .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+
+        query('limit')
+            .exists().withMessage('Limit is required')
+            .isInt({ min: 1 }).withMessage('Limit must be a positive integer'),
+
+        routeValidationResult,
+        adminAuthMiddleware,
+    ],
+    getActivityLogCtrl
 );
 
 

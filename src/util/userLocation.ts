@@ -17,6 +17,10 @@ const defaultUserLocation: userLocationInterface = {
 export async function getUserLocation(req: Request) {
     // Get client's IP address
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    console.log("req.headers['x-forwarded-for'] => ", req.headers['x-forwarded-for']);
+    console.log("req.socket.remoteAddress => ", req.socket.remoteAddress);
+    console.log("req.ip => ", req.ip);
+    
 
     try {
         // Use ip-api for geolocation data (replace `YOUR_IP` with the client's IP)

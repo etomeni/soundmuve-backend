@@ -247,16 +247,6 @@ export const sendNewsletterMail = (
     recipient: string, title: string, message: string
 ) => {
     try {
-        const mailTransporter = nodemailer.createTransport({
-            // service: "gmail",
-            host:  process.env.HOST_SENDER,
-            port: 465,
-            auth: {
-                user: process.env.HOST_EMAIL,
-                pass: process.env.HOST_PASSWORD
-            }
-        });
-
 
         const details = {
             from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
@@ -266,7 +256,8 @@ export const sendNewsletterMail = (
             html: message
         };
 
-        mailTransporter.sendMail(details, (err, info) => {
+
+        mailTransporter().sendMail(details, (err, info) => {
             console.log(info);
             
             if (err) {
