@@ -16,10 +16,13 @@ const defaultUserLocation: userLocationInterface = {
 
 export async function getUserLocation(req: Request) {
     // Get client's IP address
-    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
-    console.log("req.headers['x-forwarded-for'] => ", req.headers['x-forwarded-for']);
-    console.log("req.socket.remoteAddress => ", req.socket.remoteAddress);
-    console.log("req.ip => ", req.ip);
+    let ip: any = req.headers['x-forwarded-for'] || '';
+    const clientIp = ip.split(',')[0];
+
+    // const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    // console.log("req.headers['x-forwarded-for'] => ", req.headers['x-forwarded-for']);
+    // console.log("req.socket.remoteAddress => ", req.socket.remoteAddress);
+    // console.log("req.ip => ", req.ip);
     
 
     try {
