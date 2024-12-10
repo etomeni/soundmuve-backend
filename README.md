@@ -39,9 +39,9 @@ This values are required in .env file to run this application.
 
 success
 ```bash
-    200 - successful, everything went well
-    201 - successful, everything went well
-    202 - successful, everything didn't go well, transaction may go through, but not recorded on the db.
+200 - successful, everything went well
+201 - successful, everything went well
+202 - successful, everything didn't go well, transaction may go through, but not recorded on the db.
 ```
 
 
@@ -64,7 +64,7 @@ Follow this steps to deploy the application
 2. **Access Your Droplet**:
    - Use the IP address provided by DigitalOcean to connect to your droplet via SSH:
     ```bash
-        ssh -i ~/.ssh/soundmuve_key root@your_droplet_ip
+    ssh -i ~/.ssh/soundmuve_key root@your_droplet_ip
     ```
 
 ---
@@ -74,31 +74,31 @@ Follow this steps to deploy the application
 1. **Update the System**:
    - Update the package list and install updates:
     ```bash
-        sudo apt update && sudo apt upgrade -y
+    sudo apt update && sudo apt upgrade -y
     ```
 
 2. **Install Node.js**:
    - Install Node.js (use the LTS version):
     ```bash
-        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-        sudo apt install -y nodejs
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+    sudo apt install -y nodejs
     ```
    - Verify installation:
     ```bash
-        node -v
-        npm -v
+    node -v
+    npm -v
     ```
 
 3. **Install Git**:
    - Install Git to pull your application code:
     ```bash
-        sudo apt install git -y
+    sudo apt install git -y
     ```
 
 4. **Install PM2**:
    - PM2 is a process manager for Node.js applications:
     ```bash
-        sudo npm install -g pm2
+    sudo npm install -g pm2
     ```
 
 ---
@@ -108,28 +108,28 @@ Follow this steps to deploy the application
 1. **Create file directory**:
     - Create a directory to house the program files 
     ```bash
-        mkdir var
-        cd var
-        mkdir www
-        cd var
+    mkdir var
+    cd var
+    mkdir www
+    cd var
     ```
 
 2. **Clone Your Repository**:
    - Pull your application code from a Git repository (e.g., GitHub):
     ```bash
-        git clone https://github.com/yourusername/your-repo.git
-        cd your-repo
+    git clone https://github.com/yourusername/your-repo.git
+    cd your-repo
     ```
 
 3. **Setup the environment variables**
     - Create .env file and verify it was created
     ```bash
-        touch .env
-        ls -a
+    touch .env
+    ls -a
     ```
     - Open the .env file and past the variables
     ```bash
-        nano .env
+    nano .env
     ```
     - Save and exit
 
@@ -138,30 +138,30 @@ Follow this steps to deploy the application
     - Follow the steps/guide in this article to setup and add Swap Space
 
     ```
-        https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-22-04
+    https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-22-04
     ```
 
 3. **Install Dependencies**:
    - Install the dependencies for your project:
     ```bash
-        npm install
+    npm install
     ```
 
 4. **Build Project**:
    - Install the dependencies for your project:
     ```bash
-        npm run build
+    npm run build
     ```
 
 5. **Run Your Application**:
    - Start your app with PM2:
     ```bash
-        pm2 start index.js --name "soundmuve"
+    pm2 start index.js --name "soundmuve"
     ```
    - Enable PM2 to restart your app on reboot:
     ```bash
-        pm2 startup
-        pm2 save
+    pm2 startup
+    pm2 save
     ```
 
 ---
@@ -172,13 +172,13 @@ Follow this steps to deploy the application
 1. **Install Nginx**:
    - Install Nginx to serve your application:
     ```bash
-        sudo apt install nginx -y
+    sudo apt install nginx -y
     ```
 
 2. **Configure Nginx**:
    - Open a new configuration file:
     ```bash
-        sudo nano /etc/nginx/sites-available/soundmuve
+    sudo nano /etc/nginx/sites-available/soundmuve
     ```
    - Add the following configuration:
     ```nginx
@@ -222,21 +222,21 @@ Follow this steps to deploy the application
 3. **Enable the Configuration**:
    - Create a symbolic link to enable the configuration:
     ```bash
-        sudo ln -s /etc/nginx/sites-available/soundmuve /etc/nginx/sites-enabled/
+    sudo ln -s /etc/nginx/sites-available/soundmuve /etc/nginx/sites-enabled/
     ```
    - Test Nginx configuration:
     ```bash
-        sudo nginx -t
+    sudo nginx -t
     ```
    - Restart Nginx:
     ```bash
-        sudo systemctl restart nginx
+    sudo systemctl restart nginx
     ```
 
 4. **Allow Traffic on Port 80**:
    - Update the firewall to allow HTTP traffic:
     ```bash
-        sudo ufw allow 'Nginx Full'
+    sudo ufw allow 'Nginx Full'
     ```
 
 ---
@@ -256,8 +256,8 @@ Follow this steps to deploy the application
 2. **Enable HTTPS**:
    - Use Let's Encrypt to secure your app with HTTPS:
     ```bash
-        sudo apt install certbot python3-certbot-nginx
-        sudo certbot --nginx -d yourdomain.com
+    sudo apt install certbot python3-certbot-nginx
+    sudo certbot --nginx -d yourdomain.com
     ```
 
 ---
@@ -277,7 +277,7 @@ Application is live on DigitalOcean!
 2. **Log In to the Droplet**:
    - Use SSH to connect:
      ```bash
-        ssh -i ~/.ssh/soundmuve_key root@your_droplet_ip
+    ssh -i ~/.ssh/soundmuve_key root@your_droplet_ip
      ```
 
 ---
@@ -285,12 +285,12 @@ Application is live on DigitalOcean!
 ## Step 2: Back Up Your Current App
 1. Navigate to the directory where your app is located:
     ```bash
-        cd /path/to/your/app
+    cd /path/to/your/app
     ```
 
 2. Create a backup of your current app:
     ```bash
-        cp -r /path/to/your/app /path/to/your/backup_directory
+    cp -r /path/to/your/app /path/to/your/backup_directory
     ```
 
 ---
@@ -299,12 +299,12 @@ Application is live on DigitalOcean!
 If you're using Git:
 1. Navigate to your app directory:
     ```bash
-        cd /path/to/your/app
+    cd /path/to/your/app
     ```
 
 2. Pull the latest changes from your repository:
     ```bash
-        git pull origin main
+    git pull origin main
     ```
     Replace `main` with the branch you're using, if different.
 
@@ -314,7 +314,7 @@ If you're using Git:
 1. Ensure you are in your app directory.
 2. Install or update dependencies:
     ```bash
-        npm install
+    npm install
     ```
 
 ---
@@ -323,7 +323,7 @@ If you're using Git:
 If your app requires building (e.g., React or Angular frontend, TypeScript backend):
 1. Build the app:
     ```bash
-        npm run build
+    npm run build
     ```
     Ensure your `package.json` has a `build` script configured.
 
@@ -333,18 +333,18 @@ If your app requires building (e.g., React or Angular frontend, TypeScript backe
 If your app is running with a process manager like PM2:
 1. List running processes:
     ```bash
-        pm2 list
+    pm2 list
     ```
 
 2. Restart the application:
     ```bash
-        pm2 restart <app_name>
+    pm2 restart <app_name>
     ```
     Replace `<app_name>` with your app's name or ID.
 
 3. (Optional) If you made changes to the environment variables, reload the app:
     ```bash
-        pm2 reload <app_name>
+    pm2 reload <app_name>
     ```
 
 If you're using `systemctl` or `forever`, use the appropriate command to restart your app.
@@ -354,16 +354,16 @@ If you're using `systemctl` or `forever`, use the appropriate command to restart
 ## Step 7: Verify the Update
 1. Check your app logs to ensure everything is running correctly:
     ```bash
-        pm2 logs <app_name>
+    pm2 logs <app_name>
     ```
     Or for other methods:
     ```bash
-        journalctl -u <your_app_service_name>
+    journalctl -u <your_app_service_name>
     ```
 
 2. Open your app in a browser or use `curl` to test its endpoint:
     ```bash
-        curl http://your_domain_or_ip
+    curl http://your_domain_or_ip
     ```
 
 ---
@@ -371,7 +371,7 @@ If you're using `systemctl` or `forever`, use the appropriate command to restart
 ## Step 8: Clean Up
 - Remove any unnecessary backup files if the update is successful:
     ```bash
-        rm -rf /path/to/your/backup_directory
+    rm -rf /path/to/your/backup_directory
     ```
 
 ---
