@@ -276,9 +276,9 @@ Application is live on DigitalOcean!
 
 2. **Log In to the Droplet**:
    - Use SSH to connect:
-     ```bash
+    ```bash
     ssh -i ~/.ssh/soundmuve_key root@your_droplet_ip
-     ```
+    ```
 
 ---
 
