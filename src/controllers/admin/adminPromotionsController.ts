@@ -202,6 +202,7 @@ export const updatePromotionsCtrl = async (req: Request, res: Response, next: Ne
             });
         }
 
+        logActivity(req, `Admin - update promotional banner`, _id);
 
         // Response 
         return res.status(201).json({

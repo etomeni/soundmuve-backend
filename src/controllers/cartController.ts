@@ -8,6 +8,7 @@ import { cartModel } from "@/models/cart.model.js";
 import { PaymentModel } from "@/models/payments.model.js";
 import { releaseModel } from "@/models/release.model.js";
 import { couponDiscountModel } from "@/models/couponDiscount.model.js";
+import { logActivity } from "@/util/activityLogFn.js";
 
 const stripe = new Stripe(`${process.env.STRIPE_SECRET_KEY}`);
 
@@ -58,6 +59,8 @@ export const addToCartCtrl = async (req: Request, res: Response, next: NextFunct
             });
         }
 
+        logActivity(req, `Added release item to cart`, user_id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -94,6 +97,8 @@ export const getAllCartItemCtrl = async (req: Request, res: Response, next: Next
                 message: "cart items not found"
             });
         }
+
+        logActivity(req, `Gets all cart items`, user_id);
 
         return res.status(201).json({
             status: true,
@@ -141,6 +146,8 @@ export const removeFromCartCtrl = async (req: Request, res: Response, next: Next
             });
         }
 
+        logActivity(req, `Removed release item to cart`, user_id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -179,7 +186,6 @@ export const couponDiscountCtrl = async (req: Request, res: Response, next: Next
             status: "Pending"
         };
 
-
         const newCouponDiscount = new couponDiscountModel(data2db);
         const newCouponDiscountResponds = await newCouponDiscount.save();
 
@@ -190,6 +196,8 @@ export const couponDiscountCtrl = async (req: Request, res: Response, next: Next
                 message: "unable to submit applying for discount"
             });
         }
+
+        logActivity(req, `Applied for discounted release`, user_id);
 
         return res.status(201).json({
             status: true,
@@ -203,7 +211,7 @@ export const couponDiscountCtrl = async (req: Request, res: Response, next: Next
     }
 }
 
-// discount application - applying to get discount on releases.
+// Apply the discount coupon code
 export const applyPromoCodeCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const errors = validationResult(req);
@@ -293,6 +301,8 @@ export const applyPromoCodeCtrl = async (req: Request, res: Response, next: Next
             });
         }
 
+        logActivity(req, `Used a discount coupon code`, user_id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -305,7 +315,7 @@ export const applyPromoCodeCtrl = async (req: Request, res: Response, next: Next
     }
 }
 
-// discount application - applying to get discount on releases.
+// Get payment keys and intent
 export const getPaymentIntentAndKeysCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const errors = validationResult(req);
@@ -318,11 +328,10 @@ export const getPaymentIntentAndKeysCtrl = async (req: Request, res: Response, n
             });
         };
 
-        // const user_id = req.body.authMiddlewareParam._id;
+        const user_id = req.body.authMiddlewareParam._id;
         // const user_email = req.body.authMiddlewareParam.email;
 
         const amount = req.body.amount;
-
    
         // Create a payment intent
         const paymentIntent = await stripe.paymentIntents.create({
@@ -337,7 +346,8 @@ export const getPaymentIntentAndKeysCtrl = async (req: Request, res: Response, n
             // confirm: true, // Confirm the payment intent immediately
             
         });
-        
+
+        logActivity(req, `Get payment keys and intent`, user_id);
         
         return res.status(201).json({
             status: true,
@@ -434,6 +444,7 @@ export const successfulPaymentCtrl = async (req: Request, res: Response, next: N
 
         });
 
+        logActivity(req, `successful payment for a release`, user_id);
         
         return res.status(201).json({
             status: true,
@@ -500,6 +511,8 @@ export const checkReleaseCartCtrl = async (req: Request, res: Response, next: Ne
                 message: "cart items not found"
             });
         }
+
+        logActivity(req, `check release cart`, user_id);
 
         return res.status(201).json({
             status: true,

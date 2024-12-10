@@ -1,11 +1,10 @@
-import fs from "fs";
-import axios from "axios";
 import { Request, Response, NextFunction } from "express-serve-static-core";
 import { validationResult } from "express-validator";
 
 import { releaseModel } from "@/models/release.model.js";
 import { cloudinaryAudioUpload } from "@/util/cloudFileStorage.js";
 import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
+import { logActivity } from "@/util/activityLogFn.js";
 
 
 // Get releases
@@ -96,7 +95,7 @@ export const getReleaseByIdCtrl = async (req: Request, res: Response, next: Next
             });
         };
 
-        // const _id = req.body.authMiddlewareParam._id;
+        const _id = req.body.authMiddlewareParam._id;
 
         const release_id = req.query.id || '';
 
@@ -108,6 +107,8 @@ export const getReleaseByIdCtrl = async (req: Request, res: Response, next: Next
                 message: "unable to resolve release"
             });
         };
+
+        logActivity(req, `Admin - Viewed a release details`, _id);
 
         // Response with paginated data
         return res.status(201).json({
@@ -218,6 +219,8 @@ export const updateReleaseStatusCtrl = async (req: Request, res: Response, next:
                 message: "unable to resolve release"
             });
         };
+
+        logActivity(req, `Admin - updated release status`, updatedRelease._id);
 
         // Response with paginated data
         return res.status(201).json({

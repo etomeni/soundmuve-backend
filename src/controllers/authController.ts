@@ -234,6 +234,8 @@ export const updateSignupController = async (req: Request, res: Response, next: 
             });
         }
 
+        logActivity(req, `Signup - update details`, user._id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -576,6 +578,8 @@ export const setNewPasswordCtr = async (req: Request, res: Response, next: NextF
         // send email to user about the changed password.
         sendNewPasswordConfirmationMail(updatedUser.email, `${updatedUser.firstName} ${updatedUser.lastName}`);
 
+        logActivity(req, `Changed login password`, updatedUser._id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -623,6 +627,8 @@ export const setKycCtr = async (req: Request, res: Response, next: NextFunction)
                 message: 'Ooopps unable to update password.',
             });
         }
+
+        logActivity(req, `Setup kyc details`, user_id);
 
         return res.status(201).json({
             status: true,

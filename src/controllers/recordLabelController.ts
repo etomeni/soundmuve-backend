@@ -2,12 +2,11 @@ import { Request, Response, NextFunction } from "express-serve-static-core";
 import { validationResult } from "express-validator";
 
 import { payoutDetailsModel } from "@/models/payoutDetails.model.js";
-import { currencies } from "@/util/currencies.js";
-import axios from "axios";
 import { cloudinaryImageUpload } from "@/util/cloudFileStorage.js";
 import fs from "fs";
 import { recordLabelArtistModel } from "@/models/recordLabelArtist.model.js";
 import { releaseModel } from "@/models/release.model.js";
+import { logActivity } from "@/util/activityLogFn.js";
 
 
 export const addArtistCtrl = async (req: Request, res: Response, next: NextFunction) => {
@@ -76,6 +75,7 @@ export const addArtistCtrl = async (req: Request, res: Response, next: NextFunct
             });
         }
         
+        logActivity(req, `Added a record label artist`, user_id);
 
         return res.status(201).json({
             status: true,
@@ -115,7 +115,6 @@ export const getArtistCtrl = async (req: Request, res: Response, next: NextFunct
                 message: "record label artist details not found"
             });
         }
-
 
         return res.status(201).json({
             status: true,
@@ -425,6 +424,8 @@ export const editPayoutDetailsCtrl = async (req: Request, res: Response, next: N
             });
         };
 
+        const user_id = req.body.authMiddlewareParam._id;
+
         const data2db = {
             user_email: req.body.authMiddlewareParam.email,
             user_id: req.body.authMiddlewareParam._id,
@@ -450,6 +451,8 @@ export const editPayoutDetailsCtrl = async (req: Request, res: Response, next: N
         // TODO:::: send mail to the user notifying him/her that a new payment
         // payout details has been added to their account, display the details of the
         // new payment details info.
+
+        logActivity(req, `Edited payout details`, user_id);
 
         return res.status(201).json({
             status: true,
@@ -487,6 +490,8 @@ export const getAllPayoutDetailsCtrl = async (req: Request, res: Response, next:
             });
         }
 
+        logActivity(req, `Get payout details`, _id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -511,6 +516,8 @@ export const deletePayoutDetailsCtrl = async (req: Request, res: Response, next:
                 ...errors
             });
         };
+
+        const user_id = req.body.authMiddlewareParam._id;
         
         const payoutDetails = await payoutDetailsModel.findByIdAndDelete(req.params.payout_id || '');
         if (!payoutDetails) {
@@ -524,6 +531,8 @@ export const deletePayoutDetailsCtrl = async (req: Request, res: Response, next:
         // TODO:::: send mail to the user notifying him/her that a new payment
         // payout details has been added to their account, display the details of the
         // new payment details info.
+
+        logActivity(req, `Deleted payout details`, user_id);
 
         return res.status(201).json({
             status: true,

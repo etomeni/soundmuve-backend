@@ -4,6 +4,7 @@ import { validationResult } from "express-validator";
 import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
 import { couponDiscountModel } from "@/models/couponDiscount.model.js";
 import { sendCouponApprovalNotificationMail, sendCouponRejectionNotificationMail } from "@/util/mail.js";
+import { logActivity } from "@/util/activityLogFn.js";
 
 // Function to generate a random coupon code
 function generateCouponCode(length = 8) {
@@ -84,7 +85,7 @@ export const getCouponByIdCtrl = async (req: Request, res: Response, next: NextF
             });
         };
 
-        // const _id = req.body.authMiddlewareParam._id;
+        const _id = req.body.authMiddlewareParam._id;
 
         const coupon_id = req.query.coupon_id || '';
 
@@ -96,6 +97,8 @@ export const getCouponByIdCtrl = async (req: Request, res: Response, next: NextF
                 message: "Could not find coupon."
             });
         };
+
+        logActivity(req, `Admin - Viewed coupon discount application`, _id);
 
         // Response with paginated data
         return res.status(201).json({
@@ -123,7 +126,7 @@ export const approveCouponDiscountCtrl = async (req: Request, res: Response, nex
             });
         };
 
-        // const _id = req.body.authMiddlewareParam._id;
+        const _id = req.body.authMiddlewareParam._id;
         const coupon_id = req.body.coupon_id;
         const discountPercentage = req.body.discountPercentage;
 
@@ -177,6 +180,8 @@ export const approveCouponDiscountCtrl = async (req: Request, res: Response, nex
             "https://soundmuve.com/account"
         );
 
+        logActivity(req, `Admin - Approve coupon discount application`, _id);
+
         // Response with paginated data
         return res.status(201).json({
             status: true,
@@ -203,7 +208,7 @@ export const rejectCouponDiscountCtrl = async (req: Request, res: Response, next
             });
         };
 
-        // const _id = req.body.authMiddlewareParam._id;
+        const _id = req.body.authMiddlewareParam._id;
         const coupon_id = req.body.coupon_id;
 
         // Find the coupon and update the status
@@ -232,6 +237,8 @@ export const rejectCouponDiscountCtrl = async (req: Request, res: Response, next
         sendCouponRejectionNotificationMail(
             updatedCoupon.user_email, updatedCoupon.user_name || ""
         );
+
+        logActivity(req, `Admin - Reject coupon discount application`, _id);
 
         return res.status(201).json({
             status: true,

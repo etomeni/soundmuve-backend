@@ -8,6 +8,7 @@ import { userModel } from '../../models/users.model.js';
 
 // utilities
 import { sendAccountBlockedNotificationMail, sendAdminRemovalNotificationMail, sendLoginNotification, sendNewAdminNotificationMail, sendNewAdminNotificationMailWithCredentials } from "@/util/mail.js";
+import { logActivity } from "@/util/activityLogFn.js";
 
 
 const secretForToken = process.env.JWT_SECRET;
@@ -24,6 +25,7 @@ export const adminLoginController = async (req: Request, res: Response, next: Ne
                 errors
             });
         };
+
 
         const email = req.body.email;
         const sentPassword = req.body.password;
@@ -96,6 +98,8 @@ export const adminLoginController = async (req: Request, res: Response, next: Ne
             `${secretForToken}`,
             { expiresIn: '7d' }
         );
+
+        logActivity(req, `Admin - Login`, user._id);
 
         return res.status(201).json({
             status: true,
@@ -255,6 +259,8 @@ export const addNewAdminCtrl = async (req: Request, res: Response, next: NextFun
             });
         };
 
+        const _id = req.body.authMiddlewareParam._id;
+
         const user_id = req.body.user_id;
         if (user_id) {
             // Check if user already exists and update only the role, 
@@ -348,6 +354,7 @@ export const addNewAdminCtrl = async (req: Request, res: Response, next: NextFun
         //     });
         // }
 
+        logActivity(req, `Admin - added a new admin`, _id);
         
         return res.status(201).json({
             status: true,
@@ -376,7 +383,7 @@ export const blockRemoveAdminCtrl = async (req: Request, res: Response, next: Ne
         };
 
         // action: 'block' | 'remove', user_id: string
-
+        const _id = req.body.authMiddlewareParam._id;
         const user_id = req.body.user_id;
         const action = req.body.action;
 
@@ -400,7 +407,6 @@ export const blockRemoveAdminCtrl = async (req: Request, res: Response, next: Ne
             });
         }
 
-        
         const updatedUser = await userModel.findByIdAndUpdate(
             user_id, updateData,
             // { 
@@ -410,34 +416,36 @@ export const blockRemoveAdminCtrl = async (req: Request, res: Response, next: Ne
             { runValidators: true, returnOriginal: false }
         );
 
-        if (updatedUser) {
-            // Send a notification mail to the new admin
-
-            if (action == "block") {
-                const mailRes = sendAccountBlockedNotificationMail(
-                    updatedUser.email, `${updatedUser.firstName} ${updatedUser.lastName}`,
-                    "https://soundmuve-1bb3e.web.app/contact"
-                );
-            } else if (action == "remove") {
-                const mailRes = sendAdminRemovalNotificationMail(
-                    updatedUser.email, `${updatedUser.firstName} ${updatedUser.lastName}`,
-
-                );
-            }
-            
-            return res.status(201).json({
-                status: true,
-                statusCode: 201,
-                result: updatedUser, 
-                message: 'User role updated successfully!'
-            });
-        } else {
+        if (!updatedUser) {
             return res.status(500).json({
                 status: false,
                 statusCode: 500,
                 message: 'Unable to update user role.'
             });
         }
+
+        // Send a notification mail to the new admin
+
+        if (action == "block") {
+            const mailRes = sendAccountBlockedNotificationMail(
+                updatedUser.email, `${updatedUser.firstName} ${updatedUser.lastName}`,
+                "https://soundmuve-1bb3e.web.app/contact"
+            );
+        } else if (action == "remove") {
+            const mailRes = sendAdminRemovalNotificationMail(
+                updatedUser.email, `${updatedUser.firstName} ${updatedUser.lastName}`,
+
+            );
+        }
+        
+        logActivity(req, `Admin - removed an admin user`, _id);
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: updatedUser, 
+            message: 'User role updated successfully!'
+        });
 
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;

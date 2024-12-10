@@ -6,6 +6,7 @@ import { payoutDetailsModel } from "@/models/payoutDetails.model.js";
 import { payoutDetailsInterface } from "@/typeInterfaces/payout.interface.js";
 import { currencies } from "@/util/currencies.js";
 import axios from "axios";
+import { logActivity } from "@/util/activityLogFn.js";
 
 
 export const setupPayoutDetailsCtrl = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,6 +20,8 @@ export const setupPayoutDetailsCtrl = async (req: Request, res: Response, next: 
                 ...errors
             });
         };
+
+        const _id = req.body.authMiddlewareParam._id;
 
         const data2db = {
             user_email: req.body.authMiddlewareParam.email,
@@ -44,6 +47,8 @@ export const setupPayoutDetailsCtrl = async (req: Request, res: Response, next: 
         // payout details has been added to their account, display the details of the
         // new payment details info.
 
+        logActivity(req, `Setup payout details`, _id);
+
         return res.status(201).json({
             status: true,
             statusCode: 201,
@@ -67,6 +72,8 @@ export const editPayoutDetailsCtrl = async (req: Request, res: Response, next: N
                 ...errors
             });
         };
+
+        const _id = req.body.authMiddlewareParam._id;
 
         const data2db = {
             user_email: req.body.authMiddlewareParam.email,
@@ -93,6 +100,8 @@ export const editPayoutDetailsCtrl = async (req: Request, res: Response, next: N
         // TODO:::: send mail to the user notifying him/her that a new payment
         // payout details has been added to their account, display the details of the
         // new payment details info.
+
+        logActivity(req, `Edited payout details`, _id);
 
         return res.status(201).json({
             status: true,
@@ -155,6 +164,8 @@ export const deletePayoutDetailsCtrl = async (req: Request, res: Response, next:
             });
         };
         
+        const _id = req.body.authMiddlewareParam._id;
+
         const payoutDetails = await payoutDetailsModel.findByIdAndDelete(req.params.payout_id || '');
         if (!payoutDetails) {
           return res.status(404).json({
@@ -167,6 +178,8 @@ export const deletePayoutDetailsCtrl = async (req: Request, res: Response, next:
         // TODO:::: send mail to the user notifying him/her that a new payment
         // payout details has been added to their account, display the details of the
         // new payment details info.
+
+        logActivity(req, `Deleted payout details`, _id);
 
         return res.status(201).json({
             status: true,

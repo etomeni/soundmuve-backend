@@ -56,20 +56,6 @@ router.get(
     getPromotionsCtrl
 );
 
-// newsletter-by-id
-// router.get(
-//     "/newsletter-by-id",
-//     [
-//         query('newsletter_id')
-//             .isString().trim().isLength({ min: 3 })
-//             .withMessage('newsletter _id is required.'),
-
-//         routeValidationResult,
-//         adminAuthMiddleware,
-//     ],
-//     getSentNewslettersByIdCtrl
-// );
-
 
 // sendNewsletter
 router.post(
