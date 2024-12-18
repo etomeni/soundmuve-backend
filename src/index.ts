@@ -12,6 +12,7 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 
 import authRoutes from './routes/auth.js';
+import genRoutes from './routes/generalRoutes.js';
 import contactRoutes from './routes/contact.js';
 import releaseRoutes from './routes/releases.js';
 import payoutDetailsRoutes from './routes/payout-details.js';
@@ -62,6 +63,7 @@ app.use(bodyParser.json({limit: "50mb"}));
 // app.use(getSource);
 // app.use('/api', apiV1Routes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1', genRoutes);
 app.use('/api/v1/contact', contactRoutes);
 app.use('/api/v1/releases', releaseRoutes);
 app.use('/api/v1/payout-details', payoutDetailsRoutes);
@@ -100,4 +102,3 @@ if (dbAccess) {
         console.log(`Server Running on port: http://localhost:${PORT}`);
     })
 }
-
