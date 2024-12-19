@@ -82,6 +82,7 @@ export type releaseInterface = {
 
     singleSong?: songInterface,
     albumSongs?: songInterface[],
+    songs: songInterface[],
 
     coverArt: string,
 

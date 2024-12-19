@@ -194,6 +194,8 @@ Follow this steps to deploy the application
                 proxy_set_header Connection 'upgrade';
                 proxy_set_header Host $host;
                 proxy_cache_bypass $http_upgrade;
+
+                client_max_body_size 500M; # Increase the limit to 500MB
             }
 
             # Redirect HTTP to HTTPS
@@ -214,6 +216,8 @@ Follow this steps to deploy the application
                 proxy_set_header Connection 'upgrade';
                 proxy_set_header Host $host;
                 proxy_cache_bypass $http_upgrade;
+
+                client_max_body_size 500M; # Increase the limit to 500MB
             }
         }
     ```

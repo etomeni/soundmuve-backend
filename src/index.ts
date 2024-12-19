@@ -25,6 +25,7 @@ import adminContactRoutes from './routes/admin/adminContactRoute.js';
 import adminNewsletterRoutes from './routes/admin/adminNewsletterRoute.js';
 import adminPromotionsRoutes from './routes/admin/adminPromotionsRoute.js';
 import adminUsersRoutes from './routes/admin/adminUsersRoute.js';
+import adminAnalyticsRoutes from './routes/admin/adminAnalyticsRoute.js';
 
 import { get404, get500 } from './controllers/error.js';
 
@@ -80,6 +81,7 @@ app.use('/api/v1/admin/contact', adminContactRoutes);
 app.use('/api/v1/admin/newsletter', adminNewsletterRoutes);
 app.use('/api/v1/admin/promotions', adminPromotionsRoutes);
 app.use('/api/v1/admin/users', adminUsersRoutes);
+app.use('/api/v1/admin/analytics', adminAnalyticsRoutes);
 
 
 app.use(get404);

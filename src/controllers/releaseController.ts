@@ -280,7 +280,7 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
 
         if (
             !req.body.release_id || !req.body.stores 
-            || !req.body.socialPlatforms || !req.body.singleSong
+            || !req.body.socialPlatforms || !req.body.songDetails
         ) {
             return res.status(500).json({
                 status: false,
@@ -292,7 +292,7 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
         const release_id = req.body.release_id;
         const stores = JSON.parse(req.body.stores);
         const socialPlatforms = JSON.parse(req.body.socialPlatforms);
-        const singleSong = JSON.parse(req.body.singleSong);
+        const songDetails = JSON.parse(req.body.songDetails);
 
         // check if the user exist in the database
         const releaseData = await releaseModel.findById(release_id);
@@ -326,10 +326,12 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
                     // release_id: req.body.release_id,
                     stores,
                     socialPlatforms,
-                    singleSong: {
-                        ...singleSong,
-                        songAudio: resultSongAudio,
-                    },
+                    songs: [
+                        {
+                            ...songDetails,
+                            songAudio: resultSongAudio,
+                        },
+                    ],
                     coverArt: resultCoverArt,
                     status: "Unpaid"
                 } 
@@ -681,9 +683,9 @@ export const createAlbumRelease4Ctrl = async (req: Request, res: Response, next:
             songArtists_Creatives: JSON.parse(req.body.songArtists_Creatives),
             copyrightOwnership: JSON.parse(req.body.copyrightOwnership),
             explicitLyrics: req.body.explicitLyrics,
-            isrcNumber: req.body.ISRC_Number || '',
+            isrcNumber: req.body.isrcNumber || '',
             lyricsLanguage: req.body.lyricsLanguage || '',
-            lyrics: req.body.songLyrics || '',
+            lyrics: req.body.lyrics || '',
             tikTokClipStartTime: JSON.parse(req.body.tikTokClipStartTime),
         };
 
@@ -717,7 +719,7 @@ export const createAlbumRelease4Ctrl = async (req: Request, res: Response, next:
         // Push the new song to albumSongs array
         const updatedRelease = await releaseModel.findByIdAndUpdate(
             release_id,
-            { $push: { albumSongs: formData } },
+            { $push: { songs: formData } },
             { new: true, runValidators: true } // Options: Return the updated record and run validation
         );
                 
@@ -780,9 +782,9 @@ export const createAlbumRelease4EditAlbumSongsCtrl = async (req: Request, res: R
             songArtists_Creatives: JSON.parse(req.body.songArtists_Creatives),
             copyrightOwnership: JSON.parse(req.body.copyrightOwnership),
             explicitLyrics: req.body.explicitLyrics,
-            isrcNumber: req.body.ISRC_Number || '',
+            isrcNumber: req.body.isrcNumber || '',
             lyricsLanguage: req.body.lyricsLanguage || '',
-            lyrics: req.body.songLyrics || '',
+            lyrics: req.body.lyrics || '',
             tikTokClipStartTime: JSON.parse(req.body.tikTokClipStartTime),
         };
         // console.log(formData);
@@ -809,9 +811,9 @@ export const createAlbumRelease4EditAlbumSongsCtrl = async (req: Request, res: R
 
         // Find the release and update the specific song
         const updatedRelease = await releaseModel.findOneAndUpdate(
-            { _id: release_id, 'albumSongs._id': song_id },
+            { _id: release_id, 'songs._id': song_id },
             { 
-                $set: { 'albumSongs.$': formData } // $ references the matched song
+                $set: { 'songs.$': formData } // $ references the matched song
             },
             { new: true, runValidators: true }
         );
@@ -868,7 +870,7 @@ export const createAlbumRelease4DeleteAlbumSongsCtrl = async (req: Request, res:
         // Find the release and pull (remove) the song from the array
         const updatedRelease = await releaseModel.findByIdAndUpdate(
             release_id,
-            { $pull: { albumSongs: { _id: song_id } } }, // Removes the song with the specific ID
+            { $pull: { songs: { _id: song_id } } }, // Removes the song with the specific ID
             { new: true }
         );
 
