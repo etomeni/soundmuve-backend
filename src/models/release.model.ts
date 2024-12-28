@@ -78,8 +78,8 @@ const releaseSchema = new Schema<releaseInterface>({
     stores: [{ type: String }],
     socialPlatforms: [{ type: String }],
 
-    singleSong: { type: SongSchema },
-    albumSongs: { type: [SongSchema] },
+    // singleSong: { type: SongSchema },
+    // albumSongs: { type: [SongSchema] },
 
     songs: { type: [SongSchema] },
     coverArt: { type: String },

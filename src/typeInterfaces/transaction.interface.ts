@@ -29,9 +29,14 @@ export type transactionInterface = {
         beneficiaryEmail: string;
     };
 
-
     status: "Pending" | "Processing" | "Success" | "Complete" | "Failed",
 
+    updatedBy: {
+        user_id: string,
+        user_email: string,
+        name: string
+    },
+    
     createdAt: string;
     updatedAt: string;
 }

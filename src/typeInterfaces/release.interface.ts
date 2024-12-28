@@ -80,8 +80,8 @@ export type releaseInterface = {
     stores: string[],
     socialPlatforms: string[],
 
-    singleSong?: songInterface,
-    albumSongs?: songInterface[],
+    // singleSong?: songInterface,
+    // albumSongs?: songInterface[],
     songs: songInterface[],
 
     coverArt: string,

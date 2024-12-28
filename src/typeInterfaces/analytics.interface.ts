@@ -1,12 +1,3 @@
-export type locationAnalyticsInterface = {
-    country: string,
-    albumSold: string,
-    singleSold: string,
-    streamRevenue: string,
-    streamPlay: string,
-    revenue: string,
-}
-
 export type songAnalyticsInterface = {
     // _id: string,
     song_id: string,
@@ -18,6 +9,14 @@ export type songAnalyticsInterface = {
     location: locationAnalyticsInterface[],
 }
 
+export type locationAnalyticsInterface = {
+    country: string,
+    albumSold: number,
+    noSold: number,
+    streamRevenue: number,
+    streamPlay: number,
+    revenue: number,
+}
 
 export type analyticsInterface = {
     _id: string,
@@ -26,27 +25,28 @@ export type analyticsInterface = {
     user_email: string,
 
     release_id: string,
-    
-    albumSold: string,
-    date: string, // month and year
-
-    // songAnalytics: songAnalyticsInterface,
-
     song_id: string,
-    noSold: string,
-    revenue: string,
-    streamRevenue: string,
-    streamPlay: string,
+    date: string, // month and year
+    
+    albumSold: number,
+    noSold: number,
+    revenue: number,
+    streamRevenue: number,
+    streamPlay: number,
 
     location: locationAnalyticsInterface[],
 
     status: "Pending" | "Processing" | "Success" | "Complete" | "Failed",
 
+    updatedBy: {
+        user_id: string,
+        user_email: string,
+        name: string
+    },
+
     createdAt: string;
     updatedAt: string;
 }
-
-
 
 
 // date: string, // month and year
