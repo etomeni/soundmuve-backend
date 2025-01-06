@@ -106,7 +106,7 @@ export const searchLiveReleasesCtrl = async (req: Request, res: Response, next: 
         .skip((page - 1) * limit) // Skip items to create pages
         .lean();
 
-        
+
         // Combine data from the User and Release collections
         const fullRelases = await Promise.all(
             releasesResult.map(async (release) => {
@@ -459,7 +459,7 @@ export const setAnalyticsCtrl = async (req: Request, res: Response, next: NextFu
 
                 transactionType: "Credit",
 
-                description: `Revenue from your ${releaseDetails.releaseType} release - ${releaseDetails.title}`,
+                description: `Revenue from ${releaseDetails.releaseType} release - ${releaseDetails.title}`,
                 amount: newRevenue,
 
                 credit: {

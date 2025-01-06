@@ -17,7 +17,9 @@ import {
     blockRemoveAdminCtrl,
 } from '@/controllers/admin/adminAuthController.js';
 import { 
-    getActivityLogCtrl 
+    getActivityLogCtrl,
+    getDashboardTopTotalAnalysisCtrl,
+    getBestPerformingProjectsCtrl
 } from '@/controllers/admin/adminGeneralController.js';
 
 
@@ -137,26 +139,48 @@ router.get(
 );
 
 
-// router.post(
-//     "/update-status",
-//     [
-//         body('release_id')
-//             .isString().trim().isLength({ min: 3 })
-//             .withMessage('Release _id is required.'),
+/*
+router.post(
+    "/update-status",
+    [
+        body('release_id')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('Release _id is required.'),
 
-//         body('status')
-//             .isString().trim().isLength({ min: 3 })
-//             .withMessage('Status is required.'),
+        body('status')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('Status is required.'),
 
-//         // body('linkTreeUrl')
-//         //     .exists().withMessage('Page is required')
-//         //     .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+        // body('linkTreeUrl')
+        //     .exists().withMessage('Page is required')
+        //     .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
 
-//         // authMiddleware,
-//         adminAuthMiddleware,
-//     ],
-//     updateReleaseStatusCtrl
-// );
+        // authMiddleware,
+        adminAuthMiddleware,
+    ],
+    updateReleaseStatusCtrl
+);
+*/
+
+// dashboard-topTotal-analysis
+router.get(
+    "/dashboard-topTotal-analysis",
+    [
+        routeValidationResult,
+        adminAuthMiddleware,
+    ],
+    getDashboardTopTotalAnalysisCtrl
+);
+
+// best-performing-projects
+router.get(
+    "/best-performing-projects",
+    [
+        routeValidationResult,
+        adminAuthMiddleware,
+    ],
+    getBestPerformingProjectsCtrl
+);
 
 
 
