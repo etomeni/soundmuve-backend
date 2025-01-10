@@ -5,8 +5,8 @@ import bodyParser from 'body-parser';
 const router = express.Router();
 
 // middleWares
-// import authMiddleware from '../middleware/auth.js';
 import authMiddleware from '@/middleware/auth.js';
+import routeValidationResult from '@/middleware/routeValidationResult.js';
 
 // Controllers
 import { 
@@ -78,6 +78,7 @@ router.get(
         query('artist_id')
             .exists().withMessage('artist _id is required'),
 
+        routeValidationResult,
         authMiddleware,
     ],
     getRL_ArtistSongsDataCtrl

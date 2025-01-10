@@ -7,6 +7,7 @@ import { releaseModel } from "@/models/release.model.js";
 import { cloudinaryAudioUpload } from "@/util/cloudFileStorage.js";
 import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
 import { logActivity } from "@/util/activityLogFn.js";
+import { analyticsModel } from "@/models/analytics.model.js";
 
 
 // Get releases
@@ -87,17 +88,17 @@ export const getRL_ArtistReleasesCtrl = async (req: Request, res: Response, next
         const artist_id = req.query.artist_id;
 
         // Find only the releases where releaseType is "album"
-        const singleRelases = await releaseModel.find({ recordLabelArtist_id: artist_id, user_id: _id })
+        const rlArtistRelases = await releaseModel.find({ recordLabelArtist_id: artist_id, user_id: _id })
             .sort({ createdAt: -1 })  // Sort by createdAt in descending order
             .limit(limit) // Set the number of items per page
             .skip((page - 1) * limit) // Skip items to create pages
             .exec();
 
-        if (!singleRelases) {
+        if (!rlArtistRelases) {
             return res.status(500).json({
                 status: false,
                 statusCode: 500,
-                message: "unable to resolve single releases"
+                message: "Unable get record label artist releases."
             });
         };
 
@@ -111,7 +112,7 @@ export const getRL_ArtistReleasesCtrl = async (req: Request, res: Response, next
             status: true,
             statusCode: 201,
             result: {
-                relases: singleRelases,
+                relases: rlArtistRelases,
 
                 totalPages: Math.ceil(totalSingle / limit), // Calculate total pages
                 currentPage: page,
@@ -128,26 +129,17 @@ export const getRL_ArtistReleasesCtrl = async (req: Request, res: Response, next
 // Get record label artsit releases
 export const getRL_ArtistSongsDataCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(401).json({
-                status: false,
-                statusCode: 401,
-                message: 'sent data validation error!', 
-                ...errors
-            });
-        };
-
         const _id = req.body.authMiddlewareParam._id;
         const artist_id = req.query.artist_id;
 
-        // Count total single for the user to support pagination
+        // Count total single releases
         const totalSingles = await releaseModel.countDocuments({ 
             recordLabelArtist_id: artist_id, 
             user_id: _id,
             releaseType: "single"
         });
 
+        // Count total album releases
         const totalAlbums = await releaseModel.countDocuments({ 
             recordLabelArtist_id: artist_id, 
             user_id: _id,
@@ -155,13 +147,36 @@ export const getRL_ArtistSongsDataCtrl = async (req: Request, res: Response, nex
         });
 
 
+        // get all live releases by the record label artist
+        const rlRelease = await releaseModel.find({ 
+            recordLabelArtist_id: artist_id, 
+            user_id: _id,
+            status: { $in: ["Live", "Complete", "Processing"] }, // Filter by status
+        }).lean();
+
+        // Extract release IDs from the array of releaseInterface items
+        const releaseIds = rlRelease.map((release) => release._id).filter(Boolean); // Ensure _id is defined
+
+        // Fetch all analytics records matching the release IDs
+        const analyticsRecords = await analyticsModel.find({
+            release_id: { $in: releaseIds },
+        }).lean();
+
+        // Calculate the total revenue
+        const totalRevenue = analyticsRecords.reduce((sum, record) => {
+            return sum + (record.revenue || 0); // Add revenue for each record (default to 0 if undefined)
+        }, 0);
+
+
+
         logActivity(req, "Get record label artsit song counts", _id);
-        // Response with paginated data
+
+        // response
         return res.status(201).json({
             status: true,
             statusCode: 201,
             result: {
-                revenue: 0,
+                revenue: totalRevenue,
                 single: totalSingles,
                 album: totalAlbums,
             },

@@ -33,7 +33,7 @@ const payoutDetailSchema = new Schema<payoutDetailsInterface>(
         },
 
         account_number: {
-            type: Number,
+            type: String,
             // required: true,
         },
         beneficiary_name: {

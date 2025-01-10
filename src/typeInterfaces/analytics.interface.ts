@@ -26,7 +26,7 @@ export type analyticsInterface = {
 
     release_id: string,
     song_id: string,
-    date: string, // month and year
+    date: Date, // month and year
     
     albumSold: number,
     noSold: number,
@@ -72,3 +72,32 @@ export type analyticsInterface = {
 //     userType: 'artist' | 'record label',
 //     stageName: string,
 // },
+
+
+
+type shortReleaseInterface = {
+    title: string; 
+    releaseType: string;
+    mainArtist: string; 
+    releaseDate: string; 
+    labelName: string; 
+    coverArt: string; 
+}; 
+
+export type releaseAnalyticsInterface = analyticsInterface & { release: shortReleaseInterface };
+
+
+export type albumAndSinglesAnalyticsInterface = {
+    release_id: string,
+    totalAlbumSold: number,
+    totalNoSold: number,
+    totalRevenue: number,
+    totalStreamRevenue: number,
+    totalStreamPlay: number,
+    title: string,
+    releaseType: string,
+    mainArtist: string,
+    releaseDate: string,
+    labelName: string,
+    coverArt: string,
+}

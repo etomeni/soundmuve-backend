@@ -12,7 +12,7 @@ export type payoutDetailsInterface = {
     paymentMethod: string,
 
     currency: currencyInterface,
-    account_number?: number,
+    account_number?: String,
     bank_name?: string,
     beneficiary_name?: string,
 

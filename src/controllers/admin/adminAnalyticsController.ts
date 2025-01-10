@@ -505,7 +505,7 @@ export const setAnalyticsCtrl = async (req: Request, res: Response, next: NextFu
                     },
                 },
                 { new: true } // Return the updated document
-            );
+            ).session(session);
             if (!updatedUser) {
                 // Abort transaction in case of error
                 await session.abortTransaction();

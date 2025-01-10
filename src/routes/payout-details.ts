@@ -41,7 +41,7 @@ const payoutDetailsValidation = [
     body('currency.currency_code').isString().withMessage('Currency code must be a string'),
 
     // Optional fields for account details
-    body('account_number').optional().isNumeric().withMessage('Account number must be numeric'),
+    body('account_number').optional().isString().trim(), // .withMessage('Account number must be numeric'),
     body('bank_name').optional().isString().withMessage('Bank name must be a string'),
     body('beneficiary_name').optional().isString().withMessage('Beneficiary name must be a string'),
     

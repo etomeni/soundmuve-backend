@@ -34,8 +34,8 @@ const analyticsSchema = new Schema<analyticsInterface>(
             type: String,
             required: true,
         },
-        date: {
-            type: String,
+        date: { // sample data MM/YYYY
+            type: Date,
             required: true,
         },
 
@@ -77,4 +77,7 @@ const analyticsSchema = new Schema<analyticsInterface>(
     },
     { timestamps: true }
 );
+
+// analyticsSchema.index({ date: 1 });
+
 export const analyticsModel = mongoose.model("Analytic", analyticsSchema);

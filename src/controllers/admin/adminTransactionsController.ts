@@ -144,7 +144,7 @@ export const getWithdrawalRequestCtrl = async (req: Request, res: Response, next
         .limit(limit) // Set the number of items per page
         .skip((page - 1) * limit) // Skip items to create pages
         .lean();
-        
+
         // Combine data from the User and transaction collections
         const transactions = await Promise.all(
             transactionResults.map(async (transaction) => {

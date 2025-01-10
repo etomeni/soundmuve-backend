@@ -37,6 +37,18 @@ const transactionSchema = new Schema<transactionInterface>(
         withdrawal: {
             payout_id: {type: String},
 
+            exchangeRate: {
+                rate: {type: Number},
+                source: {
+                    currency: {type: String},
+                    amount: {type: Number},
+                },
+                destination: {
+                    currency: {type: String},
+                    amount: {type: Number},
+                }
+            },
+
             narration: {type: String},
 
             paymentMethod: {type: String},
@@ -54,9 +66,9 @@ const transactionSchema = new Schema<transactionInterface>(
         },
 
         updatedBy: {
-            user_id: { type: String, required: true },
-            user_email: { type: String, required: true },
-            name: { type: String, required: true }
+            user_id: { type: String },
+            user_email: { type: String },
+            name: { type: String }
         },
     },
     { timestamps: true }

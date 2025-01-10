@@ -18,6 +18,9 @@ import releaseRoutes from './routes/releases.js';
 import payoutDetailsRoutes from './routes/payout-details.js';
 import recordLabelRoutes from './routes/record-label.js';
 import cartRoutes from './routes/cart.route.js';
+import transactionsRoutes from './routes/transactionRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
+
 import adminReleasesRoutes from './routes/admin/adminRelease.route.js';
 import adminRoutes from './routes/admin/admin.route.js';
 import adminCouponRoutes from './routes/admin/adminCoupon.route.js';
@@ -71,6 +74,9 @@ app.use('/api/v1/releases', releaseRoutes);
 app.use('/api/v1/payout-details', payoutDetailsRoutes);
 app.use('/api/v1/record-label', recordLabelRoutes);
 app.use('/api/v1/checkout', cartRoutes);
+app.use('/api/v1/transactions', transactionsRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+
 // app.use('/api/v1/users', usersRoutes);
 // app.use('/api/admin', adminRoutes);
 // app.use('/api/v1/uploads', express.static('uploads'));

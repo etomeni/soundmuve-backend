@@ -19,6 +19,7 @@ export type transactionInterface = {
     withdrawal?: {
         payout_id: string;
 
+        exchangeRate: withdrawExchangeInterface,
         narration: string;
 
         paymentMethod: string;
@@ -39,4 +40,17 @@ export type transactionInterface = {
     
     createdAt: string;
     updatedAt: string;
+}
+
+
+export type withdrawExchangeInterface = {
+    rate: number,
+    source: {
+        currency: string,
+        amount: number
+    },
+    destination: {
+        currency: string,
+        amount: number
+    }
 }
