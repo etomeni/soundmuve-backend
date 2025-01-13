@@ -49,6 +49,12 @@ const payoutDetailSchema = new Schema<payoutDetailsInterface>(
             // required: true,
         },
 
+        bank: {
+            id: { type: Number },
+            code: { type: String },
+            name: { type: String },
+        },
+
         routing_number: {
             type: String,
         },

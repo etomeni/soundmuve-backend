@@ -59,6 +59,12 @@ const transactionSchema = new Schema<transactionInterface>(
             beneficiaryEmail: {type: String},
         },
 
+        metaData: {
+            status: { type: String },
+            message: { type: String },
+            data: { type: Object },
+        },
+
         status: { 
             type: String, 
             enum: ["Pending", "Processing", "Success", "Complete", "Failed"], 

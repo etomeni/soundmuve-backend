@@ -199,6 +199,7 @@ export const updateReleaseStatusCtrl = async (req: Request, res: Response, next:
         const release_id = req.body.release_id || '';
         const status = req.body.status || '';
         const linkTreeUrl = req.body.linkTreeUrl || '';
+        const upcEanCode = req.body.upcEanCode || '';
 
         // Find the release and update the specific song
         const updatedRelease = await releaseModel.findOneAndUpdate(
@@ -206,7 +207,9 @@ export const updateReleaseStatusCtrl = async (req: Request, res: Response, next:
             { 
                 $set: { 
                     status: status,
-                    liveUrl: linkTreeUrl
+                    // liveUrl: linkTreeUrl,
+                    ...(linkTreeUrl && {liveUrl: linkTreeUrl}),
+                    ...(upcEanCode && {upc_ean: upcEanCode})
                 } // $ references the matched song
             },
             { new: true, runValidators: true }

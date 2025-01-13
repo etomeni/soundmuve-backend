@@ -14,6 +14,10 @@ import {
     getTransactionsByIdCtrl,
     getWithdrawalRequestCtrl,
     getTopTotalTransactionAnalysisCtrl,
+    updateStatusCtrl,
+    acceptWithdrawalCtrl,
+    handleFlutterwaveWebhookCtrl,
+    verifyPayPalPaymentCtrl
 } from '@/controllers/admin/adminTransactionsController.js';
 
 
@@ -82,6 +86,94 @@ router.get(
         adminAuthMiddleware,
     ],
     getTopTotalTransactionAnalysisCtrl
+);
+
+
+
+// accept-withdrawal
+router.post(
+    "/accept-withdrawal",
+    [
+        body('user_id')
+            .isString().trim().notEmpty()
+            .withMessage('user_id is required'),
+            
+        body('transaction_id')
+            .isString().trim().notEmpty()
+            .withMessage('transaction_id is required'),
+            
+        body('payout_id')
+            .isString().trim().notEmpty()
+            .withMessage('payout_id is required'),
+            
+        body('adminName')
+            .isString().trim().notEmpty()
+            .withMessage('adminName is required'),
+            
+        routeValidationResult,
+        adminAuthMiddleware,
+    ],
+    acceptWithdrawalCtrl
+);
+
+// update-status // reject and paid manually
+router.post(
+    "/update-status",
+    [
+        body('user_id')
+            .isString().trim().notEmpty()
+            .withMessage('user_id is required'),
+            
+        body('transaction_id')
+            .isString().trim().notEmpty()
+            .withMessage('transaction_id is required'),
+            
+        body('adminName')
+            .isString().trim().notEmpty()
+            .withMessage('adminName is required'),
+            
+        body('actionType')
+            .isString().trim().notEmpty()
+            .withMessage('actionType is required')
+            .isIn(['reject', 'manually paid'])  // "reject" | "manually paid"
+            .withMessage('actionType is required'),
+
+        routeValidationResult,
+        adminAuthMiddleware,
+    ],
+    updateStatusCtrl
+);
+
+// flutterwave-webhook:transaction_id
+router.post(
+    "/flutterwave-webhook:transaction_id",
+    [
+        // body('user_id')
+        //     .isString().trim().notEmpty()
+        //     .withMessage('user_id is required'),
+
+        // routeValidationResult,
+        // adminAuthMiddleware,
+    ],
+    handleFlutterwaveWebhookCtrl
+);
+
+// flutterwave-webhook:transaction_id
+router.post(
+    "/verify-paypal-payment",
+    [
+        body('transaction_id')
+            .isString().trim().notEmpty()
+            .withMessage('transaction_id is required'),
+
+        body('payout_batch_id')
+            .isString().trim().notEmpty()
+            .withMessage('payout_batch_id is required'),
+
+        routeValidationResult,
+        adminAuthMiddleware,
+    ],
+    verifyPayPalPaymentCtrl
 );
 
 

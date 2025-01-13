@@ -30,6 +30,12 @@ export type transactionInterface = {
         beneficiaryEmail: string;
     };
 
+    metaData?: {
+        status: string,
+        message: string,
+        data: any,
+    };
+
     status: "Pending" | "Processing" | "Success" | "Complete" | "Failed",
 
     updatedBy: {
