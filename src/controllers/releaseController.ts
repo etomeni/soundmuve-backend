@@ -979,7 +979,7 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
     }
 }
 
-
+// search for Spotify Artists
 export const searchSpotifyArtistCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const errors = validationResult(req);
@@ -1046,3 +1046,100 @@ export const searchSpotifyArtistCtrl = async (req: Request, res: Response, next:
         next(error);
     }
 }
+
+// Endpoint to search for artists on Apple Music
+export const searchAppleMusicArtistCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const artistName: string = `${ req.query.artistName || '' }`;
+
+        // Your Apple Music developer token
+        const APPLE_MUSIC_TOKEN = process.env.APPLE_MUSIC_TOKEN;
+
+        const searchUrl = `https://api.music.apple.com/v1/catalog/us/search`;
+        const response = (await axios.get(searchUrl, {
+            headers: {
+                Authorization: `Bearer ${APPLE_MUSIC_TOKEN}`,
+            },
+            params: {
+                term: artistName,
+                types: 'artists', // Only search for artists
+                limit: 20, // Limit the number of results
+            },
+        })).data;
+        console.log(response);
+        
+        const artists = response.results.artists?.data || [];
+
+        // Fetch detailed information for each artist
+        const detailedArtists = await Promise.all(
+            artists.map(async (artist: any) => {
+                return await getArtistDetails(artist.id);
+            })
+        );
+
+        // Filter out any null results (failed requests)
+        const artistDetails = detailedArtists.filter((artist) => artist !== null);
+
+        // reponse
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: artistDetails,
+            message: "success"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+// Function to fetch artist details and last release
+const getArtistDetails = async (artistId: string) => {
+    try {
+        // Your Apple Music developer token
+        const APPLE_MUSIC_TOKEN = process.env.APPLE_MUSIC_TOKEN;
+
+        // Fetch artist details
+        const artistResponse = (await axios.get(`https://api.music.apple.com/v1/catalog/us/artists/${artistId}`, {
+            headers: {
+                Authorization: `Bearer ${APPLE_MUSIC_TOKEN}`,
+            },
+        })).data;
+
+        const artist = artistResponse.data[0];
+
+        // Fetch the artist's albums (to get the latest release)
+        const albumsResponse = (await axios.get(`https://api.music.apple.com/v1/catalog/us/artists/${artistId}/albums`, {
+            headers: {
+                Authorization: `Bearer ${APPLE_MUSIC_TOKEN}`,
+            },
+            params: {
+                limit: 1, // Fetch the latest release
+                sort: 'releaseDate', // Sort by release date
+            },
+        })).data;
+
+        const latestAlbum = albumsResponse.data[0];
+
+        return {
+            id: artist.id,
+            name: artist.attributes.name,
+            url: artist.attributes.url,
+            genreNames: artist.attributes.genreNames,
+            profilePicture: artist.attributes.artwork?.url?.replace('{w}x{h}', '500x500'), // Get a 500x500 image
+            latestAlbum: latestAlbum ? 
+                {
+                    name: latestAlbum.attributes.name,
+                    releaseDate: latestAlbum.attributes.releaseDate,
+                    artwork: latestAlbum.attributes.artwork?.url?.replace('{w}x{h}', '500x500'),
+                    externalUrl: latestAlbum.attributes.url,
+                }
+            : null, // Handle case where no releases are available
+        };
+
+    } catch (error: any) {
+        const err = error.response && error.response.data ? error.response.data : error;
+        console.error(`Error fetching details for artist ${artistId}:`, err.message);
+        return null;
+    }
+};

@@ -7,6 +7,8 @@ const router = express.Router();
 // middleWares
 import authMiddleware from '@/middleware/auth.js';
 import routeValidationResult from '@/middleware/routeValidationResult.js';
+import { upload_diskStorage } from '@/middleware/multerFile.js';
+import { getSpotifyAccessToken } from '@/middleware/sportify_appleMusic.js';
 
 // Controllers
 import { 
@@ -24,10 +26,10 @@ import {
 
     searchSpotifyArtistCtrl,
     getRL_ArtistReleasesCtrl,
-    getRL_ArtistSongsDataCtrl
+    getRL_ArtistSongsDataCtrl,
+    searchAppleMusicArtistCtrl
 } from '@/controllers/releaseController.js';
-import { upload_diskStorage } from '@/middleware/multerFile.js';
-import { getSpotifyAccessToken } from '@/middleware/sportify_appleMusic.js';
+
 
 router.use(bodyParser.json());
 
@@ -360,7 +362,7 @@ router.patch(
 
 
 
-// search 
+// search/spotify-artist 
 router.get(
     "/search/spotify-artist",
     [
@@ -373,6 +375,22 @@ router.get(
         getSpotifyAccessToken,
     ],
     searchSpotifyArtistCtrl
+);
+
+// Endpoint to search for artists on Apple Music
+// search/apple-music-artist 
+router.get(
+    "/search/apple-music-artist",
+    [
+        query('artistName')
+            .trim() // Remove leading/trailing spaces
+            .notEmpty().withMessage('artistName is required') // Check if it's not empty
+            .isLength({ min: 2 }).withMessage('artistName must be at least 2 characters long'), // Validate length
+
+        routeValidationResult,
+        authMiddleware,
+    ],
+    searchAppleMusicArtistCtrl
 );
 
 export default router;
