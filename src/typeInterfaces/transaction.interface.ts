@@ -1,10 +1,12 @@
+import { cartItemInterface } from "./cart.interface.js";
+
 export type transactionInterface = {
     _id: string;
     
     user_id: string;
     user_email: string;
 
-    transactionType: "Withdrawal" | "Credit" | "Debit";
+    transactionType: "Withdrawal" | "Credit" | "Debit" | "Payment";
 
     description: string;
     amount: number;
@@ -29,6 +31,16 @@ export type transactionInterface = {
         bankName: string;
         beneficiaryEmail: string;
     };
+
+    payment?: {
+        cartItems: cartItemInterface[],
+        paidAmount: number,
+        totalAmount: number,
+        paymentIntent: string;
+        paymentIntentClientSecret: string;
+        paymentStatus: string;
+        currency: string;
+    },
 
     metaData?: {
         status: string,

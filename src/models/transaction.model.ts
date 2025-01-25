@@ -16,7 +16,7 @@ const transactionSchema = new Schema<transactionInterface>(
 
         transactionType: {
             type: String, 
-            enum: ["Withdrawal", "Credit", "Debit"],
+            enum: ["Withdrawal", "Credit", "Debit", "Payment"],
             required: true 
         },
         description: {
@@ -57,6 +57,16 @@ const transactionSchema = new Schema<transactionInterface>(
             beneficiaryName: {type: String},
             bankName: {type: String},
             beneficiaryEmail: {type: String},
+        },
+
+        payment: {
+            cartItems: { type: Array },
+            paidAmount: { type: Number },
+            totalAmount: { type: Number },
+            paymentIntent: { type: String },
+            paymentIntentClientSecret: { type: String },
+            paymentStatus: { type: String },
+            currency: { type: String, default: "USD" },
         },
 
         metaData: {

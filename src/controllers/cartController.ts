@@ -9,6 +9,7 @@ import { PaymentModel } from "@/models/payments.model.js";
 import { releaseModel } from "@/models/release.model.js";
 import { couponDiscountModel } from "@/models/couponDiscount.model.js";
 import { logActivity } from "@/util/activityLogFn.js";
+import { transactionModel } from "@/models/transaction.model.js";
 
 const stripe = new Stripe(`${process.env.STRIPE_SECRET_KEY}`);
 
@@ -407,6 +408,53 @@ export const successfulPaymentCtrl = async (req: Request, res: Response, next: N
                 message: "unable to save payment details"
             });
         }
+
+
+        /* START - add payment to transaction record */
+
+        //  get the total amount of the cart items
+        const getTotalAmount = () => {
+            if (cartItems.length) {
+                const totalPrice = cartItems.reduce((accumulator, currentObject) => {
+                    return accumulator + currentObject.price;
+                }, 0);
+        
+                return totalPrice;
+            }
+            return 0;
+        }
+
+        const newTransactionData = {
+            user_email: user_email,
+            user_id: user_id,
+
+            transactionType: "Payment",
+
+            description: `Payment for music release`,
+            amount: paidAmount,
+
+            payment: {
+                cartItems,
+                paidAmount,
+                totalAmount: getTotalAmount(),
+                paymentIntent,
+                paymentIntentClientSecret,
+                paymentStatus
+            },
+
+            updatedBy: {
+                user_id: '',
+                user_email: '',
+                name: ''
+            },
+
+            status: "Success"
+        };
+        const newTransaction = new transactionModel(newTransactionData);
+        const transactionResult = await newTransaction.save();
+
+        /* END - add payment to transaction record */
+
 
         // update the release status
         // remove the items from cart

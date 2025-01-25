@@ -169,10 +169,10 @@ router.post(
 router.post(
     "/successful-payment",
     [
-        // amount should be a positive number
         body('paidAmount')
-            .isFloat({ gt: 0 })
-            .withMessage('Amount must be a positive number.'),
+            // .isFloat({ gt: 0 }) // amount should be a positive number
+            .isNumeric()
+            .withMessage('Amount must be a number.'),
 
         body('cartItems')
             .isArray({ min: 1 })
