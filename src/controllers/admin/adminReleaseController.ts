@@ -180,7 +180,6 @@ export const searchReleasesCtrl = async (req: Request, res: Response, next: Next
     }
 }
 
-
 // update release status 
 export const updateReleaseStatusCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -231,6 +230,51 @@ export const updateReleaseStatusCtrl = async (req: Request, res: Response, next:
             statusCode: 201,
             result: updatedRelease,
             message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+// update release UPC/EAN and ISRC 
+export const updateReleaseUPC_EAN_ISRC_Ctrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const admin_id = req.body.authMiddlewareParam._id;
+
+        const release_id = req.body.release_id || '';
+        const song_id = req.body.song_id || '';
+        const upcEanCode = req.body.upcEanCode || '';
+        const isrcNumber = req.body.isrcNumber || '';
+
+        // Find the release by ID and update the specific song's fields
+        const updatedRelease = await releaseModel.findOneAndUpdate(
+            { _id: release_id, "songs._id": song_id }, // Match release and song
+            {
+                $set: {
+                    "songs.$.isrcNumber": isrcNumber, // Update the ISRC number of the matched song
+                    upc_ean: upcEanCode,                 // Update the UPC/EAN code for the release
+                },
+            },
+            { new: true, runValidators: true } // Return the updated document
+        );
+
+        if (!updatedRelease) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to update release"
+            });
+        };
+
+        logActivity(req, `Admin - updated release UPC/EAN and ISRC number`, admin_id);
+
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: updatedRelease,
+            message: "Updated successfully."
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;

@@ -5,15 +5,17 @@ import bodyParser from 'body-parser';
 const router = express.Router();
 
 // middleWares
-import authMiddleware from '@/middleware/auth.js';
+// import authMiddleware from '@/middleware/auth.js';
 import adminAuthMiddleware from '@/middleware/adminAuth.js';
+import routeValidationResult from '@/middleware/routeValidationResult.js';
 
 // Controllers
 import { 
     getAllReleaseCtrl,
     getReleaseByIdCtrl,
     searchReleasesCtrl,
-    updateReleaseStatusCtrl
+    updateReleaseStatusCtrl,
+    updateReleaseUPC_EAN_ISRC_Ctrl
 } from '@/controllers/admin/adminReleaseController.js';
 
 
@@ -100,6 +102,31 @@ router.post(
         adminAuthMiddleware,
     ],
     updateReleaseStatusCtrl
+);
+
+router.post(
+    "/update-UPC_EAN_ISRC",
+    [
+        body('release_id')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('Release _id is required.'),
+
+        body('song_id')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('song_id is required.'),
+
+        body('upcEanCode')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('UPC/EAN code is required.'),
+
+        body('isrcNumber')
+            .isString().trim().isLength({ min: 3 })
+            .withMessage('ISRC number is required.'),
+
+        routeValidationResult,
+        adminAuthMiddleware,
+    ],
+    updateReleaseUPC_EAN_ISRC_Ctrl
 );
 
 
