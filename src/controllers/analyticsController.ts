@@ -18,8 +18,9 @@ import { albumAndSinglesAnalyticsInterface, analyticsInterface, releaseAnalytics
 // Get sales report analytics
 export const getSalesreportAnalyticsCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user_id = req.body.authMiddlewareParam._id;
+        const current_user_id = req.body.authMiddlewareParam._id;
         // const user_email = req.body.authMiddlewareParam.email;
+        const user_id = req.params.user_id || current_user_id;
         
         // expected date formate is YYYY-MM-DD
         const startDate: any = req.query.startDate; // YYYY-MM-DD
@@ -259,8 +260,9 @@ function getLocationData(analytics: analyticsInterface[]) {
 // Get song analytics
 export const getSongAnalyticsCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user_id = req.body.authMiddlewareParam._id;
+        const current_user_id = req.body.authMiddlewareParam._id;
         // const user_email = req.body.authMiddlewareParam.email;
+        const user_id = req.params.user_id || current_user_id;
         
         // expected date formate is YYYY-MM-DD
         const startDate: any = req.query.startDate; // YYYY-MM-DD
@@ -350,8 +352,9 @@ export const getSongAnalyticsCtrl = async (req: Request, res: Response, next: Ne
 // Get album analytics
 export const getAlbumAnalyticsCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user_id = req.body.authMiddlewareParam._id;
+        const current_user_id = req.body.authMiddlewareParam._id;
         // const user_email = req.body.authMiddlewareParam.email;
+        const user_id = req.params.user_id || current_user_id;
         
         // expected date formate is YYYY-MM-DD
         const startDate: any = req.query.startDate; // YYYY-MM-DD

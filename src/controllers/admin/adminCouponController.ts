@@ -220,7 +220,7 @@ export const rejectCouponDiscountCtrl = async (req: Request, res: Response, next
                     code: "",
                     discount: 0,
                     discountedAmount: 0,
-                    payableAmount: 0
+                    // payableAmount: 0
                 }
             },
             { new: true, runValidators: true }
@@ -244,7 +244,7 @@ export const rejectCouponDiscountCtrl = async (req: Request, res: Response, next
             status: true,
             statusCode: 201,
             result: updatedCoupon,
-            message: "successful"
+            message: "Application for a coupon discount was successfully rejected."
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;

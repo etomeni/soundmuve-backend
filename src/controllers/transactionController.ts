@@ -58,8 +58,9 @@ export const getExchangeRateCtrl = async (req: Request, res: Response, next: Nex
 // Get all transactions for a specified date range
 export const getTransactionsCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user_id = req.body.authMiddlewareParam._id;
+        const current_user_id = req.body.authMiddlewareParam._id;
         // const user_email = req.body.authMiddlewareParam.email;
+        const user_id = req.params.user_id || current_user_id;
         
         const page = parseInt(req.query.page as string) || 1; // Current page number, default is 1
         const limit = parseInt(req.query.limit as string) || 20; // Number of items per page, default is 20

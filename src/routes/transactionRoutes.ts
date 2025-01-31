@@ -63,6 +63,32 @@ router.get(
     getTransactionsCtrl
 );
 
+// get-transactions for admin view analytics by id 
+router.get(
+    "/get-transactions/:user_id",
+    [
+        query('startDate')
+            .isString().trim().notEmpty()
+            .withMessage('startDate is required.'),
+
+        query('endDate')
+            .isString().trim().notEmpty()
+            .withMessage('endDate is required.'),
+
+        query('page')
+            .exists().withMessage('Page is required')
+            .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+
+        query('limit')
+            .exists().withMessage('Limit is required')
+            .isInt({ min: 1 }).withMessage('Limit must be a positive integer'),
+
+        routeValidationResult,
+        authMiddleware,
+    ],
+    getTransactionsCtrl
+);
+
 // initiate-withdrawal
 router.post(
     "/initiate-withdrawal",
