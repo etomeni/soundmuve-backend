@@ -15,7 +15,8 @@ import {
     createSingleReleaseCtrl,
     updateCreateSingleReleaseCtrl,
     getReleaseCtrl,
-    
+    getReleaseMusicLinksCtrl,
+
     createAlbumRelease1Ctrl,
     createAlbumRelease2Ctrl,
     createAlbumRelease3Ctrl,
@@ -84,6 +85,18 @@ router.get(
         authMiddleware,
     ],
     getRL_ArtistSongsDataCtrl
+);
+
+router.get(
+    "/musicLinks/:musicCode",
+    // [
+    //     param("musicCode")
+    //         .isString().notEmpty()
+    //         .withMessage("Music code is required and must be a string"),
+
+    //     routeValidationResult,
+    // ],
+    getReleaseMusicLinksCtrl
 );
 
 // Validation for artistInterface

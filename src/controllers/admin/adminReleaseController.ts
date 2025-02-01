@@ -281,3 +281,66 @@ export const updateReleaseUPC_EAN_ISRC_Ctrl = async (req: Request, res: Response
         next(error);
     }
 }
+
+// update release UPC/EAN and ISRC 
+export const updateReleaseMusicLinksCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const admin_id = req.body.authMiddlewareParam._id;
+
+        const release_id = req.body.release_id || '';
+        const dspLinks: {name: string; url: string; }[] = req.body.dspLinks;
+        const urlCode = req.body.musicCode || '';
+
+        const musicCode = urlCode ? urlCode : generateCode();
+
+
+        // Find the release by ID and update the specific song's fields
+        const updatedRelease = await releaseModel.findByIdAndUpdate(
+            release_id,
+            {
+                $set: {
+                    musicLinks: {
+                        code: musicCode,
+                        url: `https://soundmuve.com/music/${musicCode}`,
+                        dspLinks: dspLinks
+                    },    // Update the music links for the release
+                },
+            },
+            { new: true, runValidators: true } // Return the updated document
+        );
+
+        if (!updatedRelease) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to update release"
+            });
+        };
+
+        logActivity(req, `Admin - updated the music links for the release`, admin_id);
+
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: updatedRelease,
+            message: "Updated the music links for the release successfully."
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+
+// Function to generate a random code
+function generateCode(length = 6) {
+    // Base62 characters (digits + lowercase + uppercase letters)
+    const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    
+    let shortCode = '';
+    for (let i = 0; i < length; i++) {
+        shortCode += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return shortCode;
+}

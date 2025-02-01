@@ -15,7 +15,8 @@ import {
     getReleaseByIdCtrl,
     searchReleasesCtrl,
     updateReleaseStatusCtrl,
-    updateReleaseUPC_EAN_ISRC_Ctrl
+    updateReleaseUPC_EAN_ISRC_Ctrl,
+    updateReleaseMusicLinksCtrl
 } from '@/controllers/admin/adminReleaseController.js';
 
 
@@ -127,6 +128,35 @@ router.post(
         adminAuthMiddleware,
     ],
     updateReleaseUPC_EAN_ISRC_Ctrl
+);
+
+router.post(
+    "/update-musicLinks",
+    [
+        body("release_id")
+            .isString().trim().notEmpty()
+            .withMessage("release_id is required and must be a string"),
+
+        body("dspLinks")
+            .isArray({ min: 1 })
+            .withMessage("dspLinks must be a non-empty array"),
+
+        body("dspLinks.*.name")
+            .isString().trim().notEmpty()
+            .withMessage("Each DSP link must have a name"),
+
+        body("dspLinks.*.url")
+            .isString().trim().isURL()
+            .withMessage("Each DSP link must have a valid URL"),
+
+        body("musicCode")
+            .optional().isString()
+            .withMessage("musicCode must be a string"),
+
+        routeValidationResult,
+        adminAuthMiddleware,
+    ],
+    updateReleaseMusicLinksCtrl
 );
 
 

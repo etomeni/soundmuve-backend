@@ -188,6 +188,45 @@ export const getRL_ArtistSongsDataCtrl = async (req: Request, res: Response, nex
     }
 }
 
+// Get record label artsit releases
+export const getReleaseMusicLinksCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // const _id = req.body.authMiddlewareParam._id;
+        const musicCode = req.params.musicCode || "";
+        
+        if (!musicCode) {
+            // response
+            return res.status(400).json({
+                status: false,
+                statusCode: 400,
+                message: "Music code is required"
+            });
+        }
+
+        // get the music releases 
+        const release = await releaseModel.findOne({ "musicLinks.code": musicCode }).lean();
+
+        if (!release) {
+            return res.status(404).json({
+                status: false,
+                statusCode: 404,
+                message: "Music not found"
+            });
+        }
+
+        // response
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: release,
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
 
 
 

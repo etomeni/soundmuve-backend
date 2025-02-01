@@ -92,6 +92,11 @@ const releaseSchema = new Schema<releaseInterface>({
         required: true
     },
     liveUrl: { type: String },
+    musicLinks: {
+        code: { type: String, unique: true, },
+        url: { type: String },
+        dspLinks: [{ name: {type: String}, url: {type: String}, }],
+    },
     payment_id: { type: String },
 
 }, { timestamps: true });
