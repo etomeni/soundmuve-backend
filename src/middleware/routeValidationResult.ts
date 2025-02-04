@@ -10,7 +10,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
                 status: false,
                 statusCode: 401,
                 message: 'Data Validation Error!', 
-                errors,
+                ...errors,
             });
         };
 
