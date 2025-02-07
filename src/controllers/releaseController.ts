@@ -380,6 +380,7 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
                     // release_id: req.body.release_id,
                     stores,
                     socialPlatforms,
+                    preSave: req.body.preSave.toLowerCase() == "true" ? true : false,
                     songs: [
                         {
                             ...songDetails,
@@ -951,7 +952,6 @@ export const createAlbumRelease4DeleteAlbumSongsCtrl = async (req: Request, res:
 }
 
 
-
 export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const errors = validationResult(req);
@@ -979,15 +979,16 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
         const files: any = req.files;
         const coverArt = files.coverArt ? files.coverArt[0].path : null;
         
-
         const resultCoverArt = coverArt ? await cloudinaryAudioUpload(coverArt) : '';
+        // Optionally delete the local files after uploading to Cloudinary
+        fs.unlinkSync(coverArt);
 
         const updatedRelease = await releaseModel.findByIdAndUpdate(
             release_id,
             { 
                 $set: { 
                     coverArt: resultCoverArt,
-                    status: "Unpaid"
+                    // status: "Unpaid"
                 } 
             }, 
             { new: true }
@@ -1000,9 +1001,6 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
                 message: "unable to update release."
             });
         }
-
-        // Optionally delete the local files after uploading to Cloudinary
-        fs.unlinkSync(coverArt);
         
         logActivity(req, "Create album release 5 - art work cover", updatedRelease.user_id);
 
@@ -1017,6 +1015,45 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
         next(error);
     }
 }
+
+export const saveAlbumReleaseCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const release_id = req.params.release_id || '';
+        const preSave = req.body.preSave;
+
+        const updatedRelease = await releaseModel.findByIdAndUpdate(
+            release_id,
+            { 
+                $set: { 
+                    preSave: preSave,
+                    status: "Unpaid"
+                } 
+            }, 
+            { new: true }
+        );
+
+        if (!updatedRelease) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to update release."
+            });
+        }
+        
+        logActivity(req, "Save album release - pre-save", updatedRelease.user_id);
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: updatedRelease,
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
 
 // search for Spotify Artists
 export const searchSpotifyArtistCtrl = async (req: Request, res: Response, next: NextFunction) => {

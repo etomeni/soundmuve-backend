@@ -77,6 +77,7 @@ const releaseSchema = new Schema<releaseInterface>({
     // stores: [{ type: String, required: true }],
     stores: [{ type: String }],
     socialPlatforms: [{ type: String }],
+    preSave: { type: Boolean },
 
     // singleSong: { type: SongSchema },
     // albumSongs: { type: [SongSchema] },
@@ -87,7 +88,7 @@ const releaseSchema = new Schema<releaseInterface>({
     status: { 
         type: String, 
         // enum: ["Live", "Pending", "Incomplete", "Complete", "Failed"],
-        enum: ["Incomplete", "Unpaid", "Processing",  "Complete", "Live", "Failed"],
+        enum: ["Incomplete", "Unpaid", "Processing",  "Pre-Saved", "Live", "Failed"],
         default: "Incomplete",
         required: true
     },

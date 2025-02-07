@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, query  } from 'express-validator';
+import { body, param, query  } from 'express-validator';
 import bodyParser from 'body-parser';
 
 const router = express.Router();
@@ -24,6 +24,7 @@ import {
     createAlbumRelease4EditAlbumSongsCtrl,
     createAlbumRelease4DeleteAlbumSongsCtrl,
     createAlbumRelease5Ctrl,
+    saveAlbumReleaseCtrl,
 
     searchSpotifyArtistCtrl,
     getRL_ArtistReleasesCtrl,
@@ -371,6 +372,24 @@ router.patch(
         authMiddleware,
     ],
     createAlbumRelease5Ctrl
+);
+
+// /album/save-release/:release_id
+router.patch(
+    "/album/save-release/:release_id",
+    [
+        param('release_id')
+            .isString().trim().notEmpty()
+            .withMessage('release _id is required.'),
+
+        body('preSave')
+            .isBoolean()
+            .withMessage('preSave data is required.'),
+
+        routeValidationResult,
+        authMiddleware,
+    ],
+    saveAlbumReleaseCtrl
 );
 
 

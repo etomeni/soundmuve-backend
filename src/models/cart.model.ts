@@ -34,6 +34,10 @@ const cartSchema = new Schema<cartItemInterface>(
             type: Number,
             required: true,
         },
+        preSaveAmount: {
+            type: Number,
+            required: true,
+        },
         releaseType: { 
             type: String, 
             enum: ['single', 'album'], 

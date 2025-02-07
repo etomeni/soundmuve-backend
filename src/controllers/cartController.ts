@@ -36,6 +36,7 @@ export const addToCartCtrl = async (req: Request, res: Response, next: NextFunct
             artistName: req.body.artistName,
             coverArt: req.body.coverArt,
             price: req.body.price,
+            preSaveAmount: req.body.preSaveAmount,
             releaseType: req.body.releaseType,
             title: req.body.title
         };
@@ -529,6 +530,7 @@ export const checkReleaseCartCtrl = async (req: Request, res: Response, next: Ne
             artistName: req.body.artistName,
             coverArt: req.body.coverArt,
             price: req.body.price,
+            preSaveAmount: req.body.preSaveAmount,
             releaseType: req.body.releaseType,
             title: req.body.title
         };

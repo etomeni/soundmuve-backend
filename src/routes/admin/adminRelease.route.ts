@@ -137,6 +137,10 @@ router.post(
             .isString().trim().notEmpty()
             .withMessage("release_id is required and must be a string"),
 
+        body("release_status")
+            .isString().trim().notEmpty()
+            .withMessage("music status is required."),
+
         body("dspLinks")
             .isArray({ min: 1 })
             .withMessage("dspLinks must be a non-empty array"),

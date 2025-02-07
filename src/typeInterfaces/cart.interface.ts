@@ -6,6 +6,7 @@ export interface cartItemInterface {
     artistName: string,
     coverArt: string,
     price: number,
+    preSaveAmount: number,
     releaseType: string,
     title: string
 }

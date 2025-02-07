@@ -288,6 +288,7 @@ export const updateReleaseMusicLinksCtrl = async (req: Request, res: Response, n
         const admin_id = req.body.authMiddlewareParam._id;
 
         const release_id = req.body.release_id || '';
+        const release_status = req.body.release_status || '';
         const dspLinks: {name: string; url: string; }[] = req.body.dspLinks;
         const urlCode = req.body.musicCode || '';
 
@@ -299,6 +300,7 @@ export const updateReleaseMusicLinksCtrl = async (req: Request, res: Response, n
             release_id,
             {
                 $set: {
+                    status: release_status,
                     musicLinks: {
                         code: musicCode,
                         url: `https://soundmuve.com/music/${musicCode}`,
