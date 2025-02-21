@@ -51,7 +51,7 @@ export const runReleaseReminderJob = async () => {
             
             for (const release of releases) {
                 const userData = await userModel.findById(release.user_id).lean();
-                const releaseUrl = release.releaseType == "single" ? `/account/create-single-release?release_id=${release.id}` : `/account/create-album-release-details?release_id=${release.id}`;
+                const releaseUrl = release.releaseType == "single" ? `https://soundmuve.com/account/create-single-release?release_id=${release.id}` : `https://soundmuve.com/account/create-album-release-details?release_id=${release.id}`;
 
                 if (key == "2-3_hours") {
                     sendReleaseReminder1Mail(release.email, `${userData?.firstName} ${userData?.lastName}`, releaseUrl );
