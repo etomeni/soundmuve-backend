@@ -897,3 +897,263 @@ export const sendCouponRejectionNotificationMail = (
         }
     }
 }
+
+export const sendReleaseReminder1Mail = (
+    email: string, name: string, releaseUrl: string
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/releaseReminder1.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{soundmuveUrl}}/g, releaseUrl)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hey ${name},
+
+            We noticed you started distributing your music but didn't finish. Your music deserves to be heard—let's get it out there!
+            Click below to complete your release in just a few steps:
+            ${releaseUrl}
+
+            Need help? Reply to this email, and we'll assist you!
+
+            🎵 Keep the music going
+
+            Best regards,
+            SoundMuve
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "You're almost there! Publish your music today!",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}
+
+export const sendReleaseReminder2Mail = (
+    email: string, name: string, releaseUrl: string
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/releaseReminder2.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{soundmuveUrl}}/g, releaseUrl)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hey ${name},
+
+            Your music is waiting to be shared with the world! We've saved your progress, so you can pick up where you left off anytime.
+
+            🎵  Reach millions of listeners on Spotify, Apple Music, and more!
+            Click below to finalize your release:
+            ${releaseUrl}
+
+            Let us know if you need assistance.
+            🎵  Keep creating,
+
+            Best regards,
+            SoundMuve
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "You're almost there! Publish your music today!",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}
+
+export const sendReleaseReminder3Mail = (
+    email: string, name: string, releaseUrl: string
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/releaseReminder3.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{soundmuveUrl}}/g, releaseUrl)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hey ${name},
+
+            Great music deserves to be heard. Your release is almost ready, but it won't go live until you complete the final steps.
+
+            💡 Pro Tip: Submit early to ensure your music is available on your desired release date!
+
+            Finish now:
+            ${releaseUrl}
+
+            Got questions? We're happy to help!
+
+            🎵  Keep sharing your sound,
+
+            Best regards,
+            SoundMuve
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "Don't miss your release date! Complete your distribution",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}
+
+export const sendReleaseReminder4Mail = (
+    email: string, name: string, releaseUrl: string
+) => {
+    try {
+        // Read the HTML file synchronously
+        const data = fs.readFileSync("./src/emailTemplates/releaseReminder4.html", 'utf8');
+        
+        // Replace the placeholder with a dynamic value (e.g., "John")
+        const Htmltemplate = data.replace(/{{name}}/g, name)
+        .replace(/{{soundmuveUrl}}/g, releaseUrl)
+        .replace(/{{year}}/g, year);
+        
+        
+        const mailText = `
+            Hey ${name},
+
+            Your music is still waiting to be released! Artists who complete their distribution now can reach their fans faster and grow their audience.
+
+            ✅ Get your music on top platforms
+            ✅ Start earning from streams
+            ✅ Own your music, 100%
+            This could be the start of something big! Click below to finalize your release:
+
+            ${releaseUrl}
+            Hope to see your music live soon!
+
+            🎵 Keep the music going.
+
+            Best regards,
+            SoundMuve
+
+            © ${year} SoundMuve. All rights reserved.
+        `;
+
+        const details = {
+            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            to: `${email}`,
+            subject: "Your music is waiting—Make it live today!",
+            text: mailText,
+            html: Htmltemplate
+        };
+
+        mailTransporter().sendMail(details, (err) => {
+            if (err) {
+                return {
+                    status: false,
+                    error: err,
+                    message: 'an error occured while sending mail.',
+                }
+            }
+        });
+        
+        return {
+            status: true,
+            message: 'Email sent successfully.',
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return {
+            status: false,
+            error,
+            message: 'an error occured while sending email.',
+        }
+    }
+}

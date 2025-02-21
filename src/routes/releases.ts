@@ -15,7 +15,11 @@ import {
     createSingleReleaseCtrl,
     updateCreateSingleReleaseCtrl,
     getReleaseCtrl,
+    getReleaseByIdCtrl,
     getReleaseMusicLinksCtrl,
+    updateReleaseStatusCtrl,
+    updateReleaseDateCtrl,
+    updateReleasePreOrderCtrl,
 
     createAlbumRelease1Ctrl,
     createAlbumRelease2Ctrl,
@@ -55,6 +59,99 @@ router.get(
         authMiddleware,
     ],
     getReleaseCtrl
+);
+
+// get release by Id "/:release_id",
+router.get(
+    "/:release_id",
+    [
+        param('release_id')
+            .isString().trim().notEmpty()
+            .withMessage('release_id is required'),
+
+        routeValidationResult,
+        authMiddleware,
+    ],
+    getReleaseByIdCtrl
+);
+
+// update release status - /update-status/:release_id
+router.get(
+    "/update-status/:release_id",
+    [
+        param('release_id')
+            .isString().trim().notEmpty()
+            .withMessage('release_id is required'),
+
+        query('status')
+            .isString().trim().notEmpty()
+            .exists().isIn(['Incomplete', 'Unpaid', 'Processing', 'Pre-Saved', 'Live', 'Failed'])
+            .withMessage('status is required'),
+
+        routeValidationResult,
+        authMiddleware,
+    ],
+    updateReleaseStatusCtrl
+);
+
+// update release releaseDate - /update-releaseDate/:release_id
+router.get(
+    "/update-releaseDate/:release_id",
+    [
+        param('release_id')
+            .isString().trim().notEmpty()
+            .withMessage('release_id is required'),
+
+        query('releaseDate')
+            .isString().trim().notEmpty()
+            .withMessage('releaseDate is required'),
+
+        routeValidationResult,
+        authMiddleware,
+    ],
+    updateReleaseDateCtrl
+);
+
+// update release releaseDate - /update-releaseDate/:release_id
+router.post(
+    "/update-preOrder/:release_id",
+    [
+        param('release_id')
+            .isString().trim().notEmpty()
+            .withMessage('release_id is required'),
+
+        body('status')
+            .isBoolean()
+            .withMessage('status is required'),
+
+        body('preOrderChannel')
+            .isString().trim().notEmpty()
+            .withMessage('preOrderChannel is required'),
+
+        body('preOrderStartDate')
+            .isString().trim().notEmpty()
+            .withMessage('preOrderStartDate is required'),
+
+        // body('preOrderTrackPreview.song_id')
+        //     .isString().trim().notEmpty()
+        //     .withMessage('song_id is required'),
+
+        // body('preOrderTrackPreview.songTitle')
+        //     .isString().trim().notEmpty()
+        //     .withMessage('song title is required'),
+
+        body('trackPrice')
+            .optional(),
+            // .withMessage('trackPrice is required'),
+
+        body('preOrderPrice')
+            .optional(),
+            // .withMessage('preOrderPrice is required'),
+
+        routeValidationResult,
+        authMiddleware,
+    ],
+    updateReleasePreOrderCtrl
 );
 
 router.get(

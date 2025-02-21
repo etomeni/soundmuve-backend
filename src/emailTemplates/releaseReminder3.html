@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Don't miss your release date! Complete your distribution</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E2CBA2;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: #FFFFE6;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #FF6347;
+            text-align: center;
+        }
+        p {
+            color: #555555;
+            line-height: 1.8;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #FF6347;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        a.button {
+            color: #FFFFE6;
+            text-decoration: none;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Don't miss your release date! Complete your distribution</h1>
+        <p>Hey {{name}},</p>
+
+        <p>
+            Great music deserves to be heard. Your release is almost ready, 
+            but it won't go live until you complete the final steps.
+        </p>
+
+        <p>
+            &#x1F4A1; Pro Tip: Submit early to ensure your music is available on your desired release date!
+            <br />
+            Finish now:
+        </p>
+
+        <a href="{{soundmuveUrl}}" class="button">Complete My Distribution</a>
+
+        <p>
+            Got questions? We're happy to help!
+        </p>
+
+        <p>&#x1F3B5; Keep the music going.</p>
+
+        <div class="footer">
+            <p>&copy; {{year}} Soundmuve. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

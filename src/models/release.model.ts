@@ -78,6 +78,17 @@ const releaseSchema = new Schema<releaseInterface>({
     stores: [{ type: String }],
     socialPlatforms: [{ type: String }],
     preSave: { type: Boolean },
+    preOrder: {
+        status: { type: Boolean },
+        preOrderChannel: { type: String },
+        preOrderStartDate: { type: String },
+        preOrderTrackPreview: {
+            song_id: { type: String },
+            songTitle: { type: String },
+        },
+        trackPrice: { type: Number },
+        preOrderPrice: { type: Number },
+    },
 
     // singleSong: { type: SongSchema },
     // albumSongs: { type: [SongSchema] },
@@ -99,7 +110,8 @@ const releaseSchema = new Schema<releaseInterface>({
         dspLinks: [{ name: {type: String}, url: {type: String}, }],
     },
     payment_id: { type: String },
-
+    
+    remindersSent: { type: Number, default: 0 },
 }, { timestamps: true });
 
 // Mongoose Models

@@ -31,6 +31,8 @@ import adminUsersRoutes from './routes/admin/adminUsersRoute.js';
 import adminAnalyticsRoutes from './routes/admin/adminAnalyticsRoute.js';
 import adminTransactionsRoutes from './routes/admin/adminTransactionRoute.js';
 
+import { runReleaseReminderJob } from '@/jobs/releaseReminders.js';
+
 import { get404, get500 } from './controllers/error.js';
 
 const limiter = rateLimit({
@@ -102,6 +104,7 @@ if (dbAccess) {
     .then((res) => {
         // console.log(res);
         app.listen(PORT, () => {
+            runReleaseReminderJob();
             console.log(`Server Running on port: http://localhost:${PORT}`);
         })
     })

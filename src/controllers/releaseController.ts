@@ -68,6 +68,37 @@ export const getReleaseCtrl = async (req: Request, res: Response, next: NextFunc
     }
 }
 
+// Get releases by id
+export const getReleaseByIdCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const _id = req.body.authMiddlewareParam._id;
+        const release_id = req.params.release_id;
+
+        // Find only the releases where releaseType is "album"
+        const releaseResult = await releaseModel.findById(release_id).lean();
+
+        if (!releaseResult) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to resolve releases data"
+            });
+        };
+
+        logActivity(req, "Get Release by id", _id);
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: releaseResult,
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
 // Get record label artsit releases
 export const getRL_ArtistReleasesCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -349,7 +380,7 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
         const songDetails = JSON.parse(req.body.songDetails);
 
         // check if the user exist in the database
-        const releaseData = await releaseModel.findById(release_id);
+        const releaseData = await releaseModel.findById(release_id).lean();
         if (!releaseData) {
             return res.status(401).json({
                 status: false,
@@ -362,16 +393,17 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
         const songAudio = files.songAudio ? files.songAudio[0].path : null;
         const coverArt = files.coverArt ? files.coverArt[0].path : null;
         
-        if (!songAudio) {
-            return res.status(500).json({
-                status: false,
-                statusCode: 500,
-                message: "song audio file is required."
-            });
-        }
+        // if (!songAudio) {
+        //     return res.status(500).json({
+        //         status: false,
+        //         statusCode: 500,
+        //         message: "song audio file is required."
+        //     });
+        // }
 
-        const resultSongAudio = await cloudinaryAudioUpload(songAudio);
-        const resultCoverArt = coverArt ? await cloudinaryAudioUpload(coverArt) : '';
+        // const resultSongAudio = await cloudinaryAudioUpload(songAudio);
+        const resultSongAudio = songAudio ? await cloudinaryAudioUpload(songAudio) : releaseData.songs[0].songAudio;
+        const resultCoverArt = coverArt ? await cloudinaryAudioUpload(coverArt) : releaseData.coverArt;
 
         const updatedRelease = await releaseModel.findByIdAndUpdate(
             release_id,
@@ -380,7 +412,7 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
                     // release_id: req.body.release_id,
                     stores,
                     socialPlatforms,
-                    preSave: req.body.preSave.toLowerCase() == "true" ? true : false,
+                    // preSave: req.body.preSave.toLowerCase() == "true" ? true : false,
                     songs: [
                         {
                             ...songDetails,
@@ -388,7 +420,7 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
                         },
                     ],
                     coverArt: resultCoverArt,
-                    status: "Unpaid"
+                    // status: "Unpaid"
                 } 
             }, 
             { new: true }
@@ -404,9 +436,9 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
 
 
         // Optionally delete the local files after uploading to Cloudinary
-        fs.unlinkSync(songAudio);
-        fs.unlinkSync(coverArt);
-        
+        if (songAudio) fs.unlinkSync(songAudio);
+        if (coverArt) fs.unlinkSync(coverArt);
+
         logActivity(req, "Create single release 2", '');
 
         return res.status(201).json({
@@ -421,6 +453,137 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
     }
 }
 
+// Update release status
+export const updateReleaseStatusCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const _id = req.body.authMiddlewareParam._id;
+        const release_id = req.params.release_id;
+        const release_status = req.query.status;
+
+        const updatedRelease = await releaseModel.findByIdAndUpdate(
+            release_id,
+            { 
+                $set: { 
+                    status: release_status
+                } 
+            }, 
+            { new: true }
+        );
+
+        if (!updatedRelease) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to update release."
+            });
+        }
+        
+        logActivity(req, "updated release status", _id);
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: updatedRelease,
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+// Update release date
+export const updateReleaseDateCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const _id = req.body.authMiddlewareParam._id;
+        const release_id = req.params.release_id;
+        const release_date = req.query.releaseDate;
+
+        const updatedRelease = await releaseModel.findByIdAndUpdate(
+            release_id,
+            { 
+                $set: { 
+                    releaseDate: release_date,
+                } 
+            }, 
+            { new: true }
+        );
+
+        if (!updatedRelease) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to update release."
+            });
+        }
+        
+        logActivity(req, "updated release date", _id);
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: updatedRelease,
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+// Update release preOrder
+export const updateReleasePreOrderCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const _id = req.body.authMiddlewareParam._id;
+        const release_id = req.params.release_id;
+
+        const status = req.body.status;
+        const preOrderChannel = req.body.preOrderChannel;
+        const preOrderStartDate = req.body.preOrderStartDate;
+        const preOrderTrackPreview = req.body.preOrderTrackPreview;
+        // const trackPrice = req.body.trackPrice;
+        // const preOrderPrice = req.body.preOrderPrice;
+
+        const updatedRelease = await releaseModel.findByIdAndUpdate(
+            release_id,
+            { 
+                $set: { 
+                    preOrder: {
+                        status,
+                        preOrderChannel,
+                        preOrderStartDate,
+                        ...(preOrderTrackPreview && { preOrderTrackPreview: preOrderTrackPreview }),
+                        // preOrderTrackPreview,
+                        // trackPrice,
+                        // preOrderPrice,
+                    },
+                    status: "Unpaid"
+                } 
+            }, 
+            { new: true }
+        );
+
+        if (!updatedRelease) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: "unable to update release."
+            });
+        }
+        
+        logActivity(req, "updated release pre order", _id);
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: updatedRelease,
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
 
 
 

@@ -14,6 +14,7 @@ UserInterfaceState.xcuserstate
 $RECYCLE.BIN/
 .env
 .env.production
+prodUpdateCommands.sh
 
 *.log
 log.txt

@@ -77,6 +77,17 @@ export type releaseInterface = {
 
     upc_ean: string, // optional
     preSave: boolean,
+    preOrder?: {
+        status: boolean,
+        preOrderChannel: string,
+        preOrderStartDate: string,
+        preOrderTrackPreview: {
+            song_id: string;
+            songTitle: string;
+        },
+        trackPrice: number,
+        preOrderPrice: number,
+    },
 
     stores: string[],
     socialPlatforms: string[],
@@ -95,6 +106,7 @@ export type releaseInterface = {
         dspLinks: {name: string; url: string;}[]
     },
     payment_id?: string,
+    remindersSent: number,
 
     createdAt?: string;
     updatedAt?: string;
