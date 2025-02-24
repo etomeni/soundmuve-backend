@@ -16,6 +16,7 @@ import {
     updateCreateSingleReleaseCtrl,
     getReleaseCtrl,
     getReleaseByIdCtrl,
+    deleteReleaseByIdCtrl,
     getReleaseMusicLinksCtrl,
     updateReleaseStatusCtrl,
     updateReleaseDateCtrl,
@@ -73,6 +74,20 @@ router.get(
         authMiddleware,
     ],
     getReleaseByIdCtrl
+);
+
+// get release by Id "/:release_id",
+router.delete(
+    "/:release_id",
+    [
+        param('release_id')
+            .isString().trim().notEmpty()
+            .withMessage('release_id is required'),
+
+        routeValidationResult,
+        authMiddleware,
+    ],
+    deleteReleaseByIdCtrl
 );
 
 // update release status - /update-status/:release_id

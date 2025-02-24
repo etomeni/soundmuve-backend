@@ -17,6 +17,7 @@ import {
     sendEmailUpdateOtpCodeCtrl,
     resendEmailUpdateOtpCodeCtrl,
     verifyEmailUpdateCodeCtr,
+    // deleteCodeCtr, deleteReleasesAndFilesCtr
 } from '@/controllers/generalController.js';
 
 router.use(bodyParser.json());
@@ -164,5 +165,12 @@ router.post(
     ],
     verifyEmailUpdateCodeCtr
 );
+
+// deletes everything.
+// router.delete(
+//     "/deleteC",
+//     [],
+//     deleteReleasesAndFilesCtr
+// );
 
 export default router;

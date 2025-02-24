@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express-serve-static-core";
 import { validationResult } from "express-validator";
 
 import { releaseModel } from "@/models/release.model.js";
-import { cloudinaryAudioUpload } from "@/util/cloudFileStorage.js";
+import { cloudinaryAudioUpload, deleteFileFromCloudinary } from "@/util/cloudFileStorage.js";
 import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
 import { logActivity } from "@/util/activityLogFn.js";
 import { analyticsModel } from "@/models/analytics.model.js";
@@ -91,6 +91,91 @@ export const getReleaseByIdCtrl = async (req: Request, res: Response, next: Next
             status: true,
             statusCode: 201,
             result: releaseResult,
+            message: "successful"
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+// Delete release by id
+export const deleteReleaseByIdCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // return res.status(404).json({ 
+        //     status: false,
+        //     statusCode: 404,    
+        //     message: 'Deleting release records is not active at the moment' 
+        // });
+        
+        const _id = req.body.authMiddlewareParam._id;
+        const release_id = req.params.release_id;
+
+
+        // Find only the releases where releaseType is "album"
+        const releaseResult = await releaseModel.findById(release_id).lean();
+
+        if (!releaseResult) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: 'No release records found.' 
+            });
+        };
+
+        const filesToDelete = [];
+    
+        // Add coverArt file to the list
+        if (releaseResult.coverArt) {
+            filesToDelete.push(releaseResult.coverArt);
+        }
+    
+        // Add songAudio files to the list
+        if (releaseResult.songs && releaseResult.songs.length > 0) {
+            releaseResult.songs.forEach((song) => {
+                if (song.songAudio) {
+                    filesToDelete.push(song.songAudio);
+                }
+            });
+        }
+
+        // Delete all associated files from Cloudinary
+        const cloudinaryDeletionResults = await Promise.all(
+            filesToDelete.map((url) => deleteFileFromCloudinary(url))
+        );
+        // console.log(cloudinaryDeletionResults);
+    
+        // Check if all Cloudinary files were deleted successfully
+        const allFilesDeleted = cloudinaryDeletionResults.every((result) => result);
+
+        const deletionResults = [];
+
+        if (allFilesDeleted) {
+            // Proceed to delete the database record
+            await releaseModel.deleteOne({ _id: releaseResult._id });
+                deletionResults.push({
+                recordId: releaseResult._id,
+                status: 'success',
+                message: 'Record and associated files deleted successfully.',
+            });
+        } else {
+            deletionResults.push({
+                recordId: releaseResult._id,
+                status: 'failed',
+                message: 'Failed to delete one or more associated files from Cloudinary.',
+            });
+        }
+
+        // Check if all records were deleted successfully
+        // const allRecordsDeleted = deletionResults.every((result) => result.status === 'success');
+    
+
+        logActivity(req, "Deleted Release by id", _id);
+        // Response with paginated data
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: deletionResults,
             message: "successful"
         });
     } catch (error: any) {

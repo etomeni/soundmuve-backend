@@ -54,3 +54,23 @@ export async function cloudinaryAudioUpload(filePath: any, folderName = 'release
 
     return result.secure_url;
 }
+
+
+// Helper function to delete a file from Cloudinary
+export const deleteFileFromCloudinary = async (fileUrl: string) => {
+    try {
+        // Extract the public ID from the URL
+        const publicId = fileUrl.split('/').slice(-2).join('/').split('.')[0];
+    
+        // Determine the resource type (image or video)
+        const resourceType = fileUrl.includes('/image/') ? 'image' : 'video';
+    
+        // Delete the file using the public ID
+        const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+    
+        return result.result === 'ok';
+    } catch (error) {
+        console.error(`Error deleting file from Cloudinary: ${fileUrl}`, error);
+        return false;
+    }
+};

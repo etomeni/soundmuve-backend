@@ -9,7 +9,10 @@ import {
 
 export const runReleaseReminderJob = async () => {
     // Cron job runs every 1 hour
-    cron.schedule("0 * * * *", async () => {
+    // cron.schedule("0 * * * *", async () => {
+
+    // Run the job every **1 hour 35 minutes**
+    cron.schedule("35 */1 * * *", async () => {
         console.log("Running release reminder job...");
     
         const now = new Date();
