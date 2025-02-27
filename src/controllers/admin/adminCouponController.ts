@@ -140,10 +140,17 @@ export const approveCouponDiscountCtrl = async (req: Request, res: Response, nex
         };
 
         const totalAmount = couponApplication.cartItems.reduce((accumulator, currentObject) => {
+            const releaseTotalPrice = currentObject.price + (currentObject.preSaveAmount || 0);
+
+            return accumulator + releaseTotalPrice;
+            // return accumulator + currentObject.price;
+        }, 0);
+
+        const totalPriceAmount = couponApplication.cartItems.reduce((accumulator, currentObject) => {
             return accumulator + currentObject.price;
         }, 0);
       
-        const discounted_Amount = (totalAmount * discountPercentage) / 100;
+        const discounted_Amount = (totalPriceAmount * discountPercentage) / 100;
         const balanceAmount = totalAmount - discounted_Amount;
 
         const couponCode = generateCouponCode();

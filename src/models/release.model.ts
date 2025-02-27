@@ -105,7 +105,7 @@ const releaseSchema = new Schema<releaseInterface>({
     },
     liveUrl: { type: String },
     musicLinks: {
-        code: { type: String, unique: true, },
+        code: { type: String, unique: true, sparse: true },
         url: { type: String },
         dspLinks: [{ name: {type: String}, url: {type: String}, }],
     },

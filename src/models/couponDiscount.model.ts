@@ -12,6 +12,7 @@ const cartItemSchema = {
     artistName: { type: String, required: true },
     coverArt: { type: String, required: true },
     price: { type: Number, required: true },
+    preSaveAmount: { type: Number, required: true },
     releaseType: { type: String, required: true },
     title: { type: String, required: true },
 };
