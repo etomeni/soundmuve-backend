@@ -111,3 +111,30 @@ export type releaseInterface = {
     createdAt?: string;
     updatedAt?: string;
 }
+
+
+
+
+
+export type appleMusicSearchArtistCatelogInterface = {
+    id: string,
+    type: string,
+    href: string,
+    attributes: {
+        name: string,
+        genreNames: string[],
+        artwork: {
+            width: number,
+            height: number,
+            url: string,
+            bgColor: string,
+            textColor1: string,
+            textColor2: string,
+            textColor3: string,
+            textColor4: string,
+        },
+        url: string,
+        // "artistName": "Beach Bunny",
+    },
+    relationships: { albums: any }
+}

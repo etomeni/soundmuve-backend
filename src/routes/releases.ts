@@ -8,7 +8,7 @@ const router = express.Router();
 import authMiddleware from '@/middleware/auth.js';
 import routeValidationResult from '@/middleware/routeValidationResult.js';
 import { upload_diskStorage } from '@/middleware/multerFile.js';
-import { getSpotifyAccessToken } from '@/middleware/sportify_appleMusic.js';
+import { getAppleMusicAccessToken, getSpotifyAccessToken } from '@/middleware/sportify_appleMusic.js';
 
 // Controllers
 import { 
@@ -76,7 +76,7 @@ router.get(
     getReleaseByIdCtrl
 );
 
-// get release by Id "/:release_id",
+// delete release by Id "/:release_id",
 router.delete(
     "/:release_id",
     [
@@ -533,6 +533,7 @@ router.get(
 
         routeValidationResult,
         authMiddleware,
+        getAppleMusicAccessToken,
     ],
     searchAppleMusicArtistCtrl
 );

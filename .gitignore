@@ -17,6 +17,7 @@ $RECYCLE.BIN/
 prodUpdateCommands.sh
 
 *.log
+*.p8
 log.txt
 npm-debug.log*
 

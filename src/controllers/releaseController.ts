@@ -8,6 +8,8 @@ import { cloudinaryAudioUpload, deleteFileFromCloudinary } from "@/util/cloudFil
 import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
 import { logActivity } from "@/util/activityLogFn.js";
 import { analyticsModel } from "@/models/analytics.model.js";
+import { cartModel } from "@/models/cart.model.js";
+import { appleMusicSearchArtistCatelogInterface } from "@/typeInterfaces/release.interface.js";
 
 
 // Get releases
@@ -153,7 +155,7 @@ export const deleteReleaseByIdCtrl = async (req: Request, res: Response, next: N
         if (allFilesDeleted) {
             // Proceed to delete the database record
             await releaseModel.deleteOne({ _id: releaseResult._id });
-                deletionResults.push({
+            deletionResults.push({
                 recordId: releaseResult._id,
                 status: 'success',
                 message: 'Record and associated files deleted successfully.',
@@ -387,6 +389,16 @@ export const createSingleReleaseCtrl = async (req: Request, res: Response, next:
 
         const release_id = req.body.release_id;
         if (release_id) {
+            // Find release record by ID and check if it is editable
+            const releaseDetail = await releaseModel.findById(release_id).lean();
+            if (releaseDetail && releaseDetail.status != "Incomplete" && releaseDetail.status != "Unpaid") {
+                return res.status(401).json({
+                    status: false,
+                    statusCode: 401,
+                    message: "You can't edit this release again, please contact support for further assistance." 
+                });
+            }
+
             // Find the record by ID and update it
             const updatedRelease = await releaseModel.findByIdAndUpdate(
                 release_id,                    // The ID of the record to update
@@ -473,6 +485,16 @@ export const updateCreateSingleReleaseCtrl = async (req: Request, res: Response,
                 message: "No release with id found, please create a new release."
             });
         }
+
+        // check if release is editable
+        if (releaseData.status != "Incomplete" && releaseData.status != "Unpaid") {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "You can't edit this release again, please contact support for further assistance." 
+            });
+        }
+        
 
         const files: any = req.files;
         const songAudio = files.songAudio ? files.songAudio[0].path : null;
@@ -772,6 +794,17 @@ export const createAlbumRelease1Ctrl = async (req: Request, res: Response, next:
 
         const release_id = req.body.release_id;
         if (release_id) {
+            // Find release record by ID and check if it is editable
+            const releaseDetail = await releaseModel.findById(release_id).lean();
+            if (releaseDetail && releaseDetail.status != "Incomplete" && releaseDetail.status != "Unpaid") {
+                return res.status(401).json({
+                    status: false,
+                    statusCode: 401,
+                    message: "You can't edit this release again, please contact support for further assistance." 
+                });
+            }
+            
+            
             // Find the record by ID and update it
             const updatedRelease = await releaseModel.findByIdAndUpdate(
                 release_id,                    // The ID of the record to update
@@ -854,6 +887,16 @@ export const createAlbumRelease2Ctrl = async (req: Request, res: Response, next:
             });
         }
 
+        // checks if release is editable
+        if (releaseData.status != "Incomplete" && releaseData.status != "Unpaid") {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "You can't edit this release again, please contact support for further assistance." 
+            });
+        }
+        
+
         const updatedRelease = await releaseModel.findByIdAndUpdate(
             release_id,
             { 
@@ -918,6 +961,16 @@ export const createAlbumRelease3Ctrl = async (req: Request, res: Response, next:
                 message: "No release with id found, please create a new release."
             });
         }
+
+        // checks if release is editable
+        if (releaseData.status != "Incomplete" && releaseData.status != "Unpaid") {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "You can't edit this release again, please contact support for further assistance." 
+            });
+        }
+
 
         const updatedRelease = await releaseModel.findByIdAndUpdate(
             release_id,
@@ -1001,6 +1054,16 @@ export const createAlbumRelease4Ctrl = async (req: Request, res: Response, next:
                 message: "No release with id found, please create a new release."
             });
         }
+
+        // checks if release is editable
+        if (releaseData.status != "Incomplete" && releaseData.status != "Unpaid") {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "You can't edit this release again, please contact support for further assistance." 
+            });
+        }
+
 
         const files: any = req.files;
         const songAudio = files.songAudio ? files.songAudio[0].path : null;
@@ -1102,6 +1165,16 @@ export const createAlbumRelease4EditAlbumSongsCtrl = async (req: Request, res: R
             });
         }
 
+        // checks if release is editable
+        if (releaseData.status != "Incomplete" && releaseData.status != "Unpaid") {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "You can't edit this release again, please contact support for further assistance." 
+            });
+        }
+
+
         const files: any = req.files;
         const songAudio = files.songAudio ? files.songAudio[0].path : null;
         
@@ -1156,8 +1229,6 @@ export const createAlbumRelease4DeleteAlbumSongsCtrl = async (req: Request, res:
             });
         };
 
-        // const { releaseId, songId } = req.params;
-
         const release_id = req.params.releaseId;
         const song_id = req.params.songId;
 
@@ -1170,20 +1241,95 @@ export const createAlbumRelease4DeleteAlbumSongsCtrl = async (req: Request, res:
             });
         }
 
-        // Find the release and pull (remove) the song from the array
-        const updatedRelease = await releaseModel.findByIdAndUpdate(
-            release_id,
-            { $pull: { songs: { _id: song_id } } }, // Removes the song with the specific ID
-            { new: true }
-        );
 
-        if (!updatedRelease) {
+        // Find only the releases where releaseType is "album"
+        const releaseResult = await releaseModel.findById(release_id).lean();
+        if (!releaseResult) {
             return res.status(500).json({
                 status: false,
                 statusCode: 500,
-                message: "Release or song not found"
+                message: 'No release records found.' 
+            });
+        };
+
+        if (releaseResult.status != "Incomplete" && releaseResult.status != "Unpaid") {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "You can't delete this release, please contact support for further assistance." 
             });
         }
+
+
+        const filesToDelete: string[] = [];
+    
+        // Add songAudio files to the list
+        if (releaseResult.songs && releaseResult.songs.length > 0) {
+            releaseResult.songs.forEach((song) => {
+                if (song._id == song_id && song.songAudio) {
+                    filesToDelete.push(song.songAudio);
+                }
+            });
+        }
+
+        // Delete all associated files from Cloudinary
+        const cloudinaryDeletionResults = await Promise.all(
+            filesToDelete.map((url) => deleteFileFromCloudinary(url))
+        );
+        // console.log(cloudinaryDeletionResults);
+    
+        // Check if all Cloudinary files were deleted successfully
+        const allFilesDeleted = cloudinaryDeletionResults.every((result) => result);
+
+        const deletionResults = [];
+
+        let updatedRelease: any = undefined;
+        if (allFilesDeleted) {
+            // Find the release and pull (remove) the song from the array
+            updatedRelease = await releaseModel.findByIdAndUpdate(
+                release_id,
+                { $pull: { songs: { _id: song_id } } }, // Removes the song with the specific ID
+                { new: true }
+            );
+
+            const deletedCartItem = await cartModel.deleteMany({ release_id });
+    
+            deletionResults.push({
+                recordId: releaseResult._id,
+                status: 'success',
+                message: 'Record and associated files deleted successfully.',
+            });
+
+            if (!updatedRelease) {
+                return res.status(500).json({
+                    status: false,
+                    statusCode: 500,
+                    message: "Release or song not found"
+                });
+            }
+        } else {
+            deletionResults.push({
+                recordId: releaseResult._id,
+                status: 'failed',
+                message: 'Failed to delete one or more associated files from Cloudinary.',
+            });
+        }
+
+
+        // // Find the release and pull (remove) the song from the array
+        // const updatedRelease = await releaseModel.findByIdAndUpdate(
+        //     release_id,
+        //     { $pull: { songs: { _id: song_id } } }, // Removes the song with the specific ID
+        //     { new: true }
+        // );
+
+        // if (!updatedRelease) {
+        //     return res.status(500).json({
+        //         status: false,
+        //         statusCode: 500,
+        //         message: "Release or song not found"
+        //     });
+        // }
 
         logActivity(req, "Create album release 4 - delete Song", updatedRelease.user_id);
 
@@ -1191,6 +1337,7 @@ export const createAlbumRelease4DeleteAlbumSongsCtrl = async (req: Request, res:
             status: true,
             statusCode: 201,
             result: updatedRelease,
+            deletionResults,
             message: "successful"
         });
     } catch (error: any) {
@@ -1224,6 +1371,16 @@ export const createAlbumRelease5Ctrl = async (req: Request, res: Response, next:
             });
         }
 
+        // checks if release is editable
+        if (releaseData.status != "Incomplete" && releaseData.status != "Unpaid") {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "You can't edit this release again, please contact support for further assistance." 
+            });
+        }
+
+        
         const files: any = req.files;
         const coverArt = files.coverArt ? files.coverArt[0].path : null;
         
@@ -1377,7 +1534,8 @@ export const searchAppleMusicArtistCtrl = async (req: Request, res: Response, ne
         const artistName: string = `${ req.query.artistName || '' }`;
 
         // Your Apple Music developer token
-        const APPLE_MUSIC_TOKEN = process.env.APPLE_MUSIC_TOKEN;
+        const APPLE_MUSIC_TOKEN = req.body.appleMusic.access_token;
+        // const APPLE_MUSIC_TOKEN = process.env.APPLE_MUSIC_TOKEN;
 
         const searchUrl = `https://api.music.apple.com/v1/catalog/us/search`;
         const response = (await axios.get(searchUrl, {
@@ -1390,14 +1548,14 @@ export const searchAppleMusicArtistCtrl = async (req: Request, res: Response, ne
                 limit: 20, // Limit the number of results
             },
         })).data;
-        console.log(response);
+        // console.log(response);
         
         const artists = response.results.artists?.data || [];
 
         // Fetch detailed information for each artist
         const detailedArtists = await Promise.all(
             artists.map(async (artist: any) => {
-                return await getArtistDetails(artist.id);
+                return await getArtistDetails(artist, APPLE_MUSIC_TOKEN);
             })
         );
 
@@ -1418,13 +1576,10 @@ export const searchAppleMusicArtistCtrl = async (req: Request, res: Response, ne
 }
 
 // Function to fetch artist details and last release
-const getArtistDetails = async (artistId: string) => {
+const getArtistDetails = async (artistResult: appleMusicSearchArtistCatelogInterface, APPLE_MUSIC_TOKEN: string) => {
     try {
-        // Your Apple Music developer token
-        const APPLE_MUSIC_TOKEN = process.env.APPLE_MUSIC_TOKEN;
-
         // Fetch artist details
-        const artistResponse = (await axios.get(`https://api.music.apple.com/v1/catalog/us/artists/${artistId}`, {
+        const artistResponse = (await axios.get(`https://api.music.apple.com/v1/catalog/us/artists/${artistResult.id}`, {
             headers: {
                 Authorization: `Bearer ${APPLE_MUSIC_TOKEN}`,
             },
@@ -1433,7 +1588,7 @@ const getArtistDetails = async (artistId: string) => {
         const artist = artistResponse.data[0];
 
         // Fetch the artist's albums (to get the latest release)
-        const albumsResponse = (await axios.get(`https://api.music.apple.com/v1/catalog/us/artists/${artistId}/albums`, {
+        const albumsResponse = (await axios.get(`https://api.music.apple.com/v1/catalog/us/artists/${artistResult.id}/albums`, {
             headers: {
                 Authorization: `Bearer ${APPLE_MUSIC_TOKEN}`,
             },
@@ -1443,7 +1598,7 @@ const getArtistDetails = async (artistId: string) => {
             },
         })).data;
 
-        const latestAlbum = albumsResponse.data[0];
+        const latestAlbum: any = albumsResponse.data[0];
 
         return {
             id: artist.id,
@@ -1463,7 +1618,18 @@ const getArtistDetails = async (artistId: string) => {
 
     } catch (error: any) {
         const err = error.response && error.response.data ? error.response.data : error;
-        console.error(`Error fetching details for artist ${artistId}:`, err.message);
-        return null;
+        console.log(artistResult.id, err);
+        // console.error(`Error fetching details for artist ${artistId}:`, err.message);
+
+        return {
+            id: artistResult.id,
+            name: artistResult.attributes.name,
+            url: artistResult.attributes.url,
+            genreNames: artistResult.attributes.genreNames,
+            profilePicture: artistResult.attributes.artwork?.url?.replace('{w}x{h}', '500x500'), // Get a 500x500 image
+            latestAlbum: undefined
+        };
+
+        // return null;
     }
 };
