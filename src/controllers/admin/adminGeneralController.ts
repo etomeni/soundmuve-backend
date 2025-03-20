@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
 
 // models
-import { userModel } from '../../models/users.model.js';
+import { userModel } from '@/models/users.model.js';
 import { activityLogModel } from "@/models/activityLog.model.js";
 import { logActivity } from "@/util/activityLogFn.js";
 import { transactionModel } from "@/models/transaction.model.js";

@@ -9,6 +9,8 @@ import { userModel } from '../../models/users.model.js';
 // utilities
 import { sendAccountBlockedNotificationMail, sendAdminRemovalNotificationMail, sendLoginNotification, sendNewAdminNotificationMail, sendNewAdminNotificationMailWithCredentials } from "@/util/mail.js";
 import { logActivity } from "@/util/activityLogFn.js";
+import { generateTokens, verifyRefreshToken } from "@/util/JWT_tokens.js";
+import { userTokenModel } from "@/models/userToken.model.js";
 
 
 const secretForToken = process.env.JWT_SECRET;
@@ -88,25 +90,19 @@ export const adminLoginController = async (req: Request, res: Response, next: Ne
             await user.save();
         }
 
-
-        const token = Jwt.sign(
-            {
-                email: user.email,
-                _id: user._id,
-                role: user.role,
-            },
-            `${secretForToken}`,
-            { expiresIn: '7d' }
-        );
-
+        const tokens = await generateTokens(user);
+       
         logActivity(req, `Admin - Login`, user._id);
 
         return res.status(201).json({
             status: true,
             statusCode: 201,
-            message: 'Login successful',
-            token: token,
-            result: user, 
+            result: {
+                token: tokens.access_token,
+                refresh_token: tokens.refresh_token,
+                user,
+            },
+            message: 'Login successful'
         });
     } catch (error: any) {
         if (!error.statusCode) error.statusCode = 500;
@@ -151,7 +147,8 @@ export const reValidateUserAuthCtrl = async (req: Request, res: Response, next: 
             {
                 email: user.email,
                 _id: user._id,
-                role: user.role
+                role: user.role,
+                name: `${user.firstName} ${user.lastName}`,
             },
             `${secretForToken}`,
             { expiresIn: '7d' }
@@ -169,6 +166,100 @@ export const reValidateUserAuthCtrl = async (req: Request, res: Response, next: 
         next(error);
     }
 }
+
+
+export const refreshAuthCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const refresh_token = req.body.refresh_token;
+        
+        const decodedToken = await verifyRefreshToken(`${refresh_token}`);
+        if (!decodedToken.token) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: decodedToken.message
+            });
+        }
+
+        // interface tokenDataInterface {
+        //     email: string;
+        //     _id: string;
+        //     role: string
+        // };
+        const tokenDetails: any = decodedToken.token;
+
+        // check if the user exist in the database
+        const user = await userModel.findById(tokenDetails._id);
+        if (!user) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "A user with this email could not be found!"
+            });
+        }
+
+        // check if the account is still active.
+        if (user.status == false) {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "This account has been disabled, if you believe this is a mistake please contact support to resolve."
+            });
+        };
+
+        // checks if the user is an admin
+        if (user.role == "user") {
+            return res.status(401).json({
+                status: false,
+                statusCode: 401,
+                message: "Access denied! You don't have permission to access this pages."
+            });
+        }
+
+        // get a new access token
+        const newAccessToken = Jwt.sign(
+            {
+                email: user.email,
+                _id: user._id,
+                role: user.role,
+                name: `${user.firstName} ${user.lastName}`,
+            },
+            `${secretForToken}`,
+            { expiresIn: '14m' }
+        );
+        
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            result: {
+                newToken: newAccessToken,
+                user, 
+            },
+            message: 'success!',
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
+export const logoutCtrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const refresh_token = req.body.refresh_token;
+
+        const usesdd = await userTokenModel.deleteOne({token: refresh_token});
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            message: 'Logged out successfully!',
+        });
+    } catch (error: any) {
+        if (!error.statusCode) error.statusCode = 500;
+        next(error);
+    }
+}
+
 
 
 

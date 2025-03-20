@@ -9,9 +9,9 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         if (!authHeader) {
             // const error = new Error("Not authenticated!");
     
-            return res.status(401).json({
+            return res.status(419).json({
                 status: false,
-                statusCode: 401,
+                statusCode: 419,
                 message: "Not authenticated! Please login and try again.",
             });
         }
@@ -23,10 +23,10 @@ export default async (req: Request, res: Response, next: NextFunction) => {
 
             decodedToken = Jwt.verify(token, `${secretForToken}`)
         } catch (error: any) {
-            error.statusCode = 500;
+            error.statusCode = 419;
             error.message = "wrong authentication token";
     
-            return res.status(500).json({
+            return res.status(419).json({
                 status: false,
                 message: error.message,
                 statusCode: error.statusCode,
@@ -35,9 +35,9 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         }
     
         if (!decodedToken) {
-            return res.status(401).json({
+            return res.status(419).json({
                 status: false,
-                statusCode: 401,
+                statusCode: 419,
                 message: "Not authenticated! unable to verify user authtentication token.",
             });
         }
@@ -46,7 +46,8 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         req.body.authMiddlewareParam = {
             isLoggedin: true,
             email: decodedToken.email,
-            _id: decodedToken._id
+            _id: decodedToken._id,
+            name: `${decodedToken.firstName} ${decodedToken.lastName}`,
         };
     
         next();

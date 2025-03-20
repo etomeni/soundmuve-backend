@@ -5,6 +5,7 @@ import { promotionModel } from "@/models/promotions.model.js";
 
 import { logActivity } from "@/util/activityLogFn.js";
 import { promotionInterface } from "@/typeInterfaces/promotions.interface.js";
+import { cloudinaryImageUpload, deleteImageFileFromCloudinary } from "@/util/cloudFileStorage.js";
 
 
 // Get All promotions
@@ -104,9 +105,19 @@ export const uploadPromotionsCtrl = async (req: Request, res: Response, next: Ne
         const _id = req.body.authMiddlewareParam._id;
         const user_email = req.body.authMiddlewareParam.email;
 
+        const promotionalImage = await cloudinaryImageUpload(req.body.image, "images/promotions");
+
+        if (!promotionalImage) {
+            return res.status(500).json({
+                status: false,
+                statusCode: 500,
+                message: 'Image upload failed.'
+            });
+        }
+
         const promotiondata: promotionInterface = {
             title: req.body.title,
-            image: req.body.image,
+            image: promotionalImage,
             userType: req.body.userType,
             status: true,
             createdBy: {
@@ -151,10 +162,18 @@ export const updatePromotionsCtrl = async (req: Request, res: Response, next: Ne
         const action: "status" | "delete" = req.body.action;
         const actionValue: boolean = req.body.actionValue;
 
+        const promotion = await promotionModel.findById(promotional_id);
+        if (!promotion) {
+            return res.status(400).json({
+                status: false,
+                statusCode: 400,
+                message: "Promotion not found"
+            });
+        }
+
         if (action == "status") {
             // update the release status
-            const updatedPromotion = await promotionModel.findByIdAndUpdate(
-                promotional_id,
+            const updatedPromotion = await promotion.updateOne(
                 { 
                     status: actionValue,
                 }, 
@@ -165,7 +184,7 @@ export const updatePromotionsCtrl = async (req: Request, res: Response, next: Ne
                 return res.status(400).json({
                     status: false,
                     statusCode: 400,
-                    message: "Promotion not found"
+                    message: "Failed to update promotion."
                 });
             }
 
@@ -180,14 +199,23 @@ export const updatePromotionsCtrl = async (req: Request, res: Response, next: Ne
             });
 
         } else if (action == "delete") {
-            const deletedPromotion = await promotionModel.findByIdAndDelete(promotional_id);
+            // Delete associated file from Cloudinary
+            const deleteResult = await deleteImageFileFromCloudinary(promotion.image);
+            if (!deleteResult) {
+                return res.status(500).json({
+                    status: false,
+                    statusCode: 500,
+                    message: "Failed to delete promotion."
+                });
+            }
 
+            const deletedPromotion = await promotion.deleteOne();
             if (!deletedPromotion) {
                 // Response 
                 return res.status(400).json({
                     status: false,
                     statusCode: 400,
-                    message: "Promotion not found"
+                    message: "Failed to delete promotion."
                 });
             }
 

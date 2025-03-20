@@ -57,7 +57,7 @@ router.get(
 );
 
 
-// sendNewsletter
+// /upload promotions
 router.post(
     "/upload",
     [
@@ -81,7 +81,7 @@ router.post(
     uploadPromotionsCtrl
 );
 
-// sendNewsletter
+// /update promotions
 router.post(
     "/update",
     [

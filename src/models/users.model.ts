@@ -7,7 +7,7 @@ const userSchema = new Schema<userInterface>(
     {
         role: { 
             type: String, 
-            enum: ['user', 'admin'], 
+            enum: ['user', 'admin', 'super admin', 'moderator', 'editor', 'support'], 
             default: 'user' 
         }, // Added role field
         

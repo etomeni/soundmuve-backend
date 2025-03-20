@@ -1,5 +1,5 @@
 import express from 'express';
-import { body  } from 'express-validator';
+import { body } from 'express-validator';
 import bodyParser from 'body-parser';
 
 const router = express.Router();
@@ -14,17 +14,20 @@ import {
 
     loginController, 
     reValidateUserAuthCtrl,
+    refreshAuthCtrl,
+    logoutCtrl,
 
     // updateUserProfileCtr, 
     sendPasswordResetEmailCtr,
     verifyEmailTokenCtr,
     setNewPasswordCtr,
     setKycCtr,
-} from './../controllers/authController.js';
+} from '@/controllers/authController.js';
 import { adminLoginController } from '@/controllers/admin/adminAuthController.js';
 
 // middleWares
 import authMiddleware from '@/middleware/auth.js';
+import routeValidationResult from '@/middleware/routeValidationResult.js';
 import { upload_diskStorage } from '@/middleware/multerFile.js';
 
 
@@ -98,6 +101,30 @@ router.get(
     authMiddleware,
     reValidateUserAuthCtrl
 )
+
+router.post(
+    "/refresh",
+    [
+        body('refresh_token')
+            .isString().trim().notEmpty()
+            .withMessage('refresh_token is required'),
+        
+        routeValidationResult
+    ],
+    refreshAuthCtrl
+);
+
+router.post(
+    "/logout",
+    [
+        body('refresh_token')
+            .isString().trim().notEmpty()
+            .withMessage('refresh_token is required'),
+        
+        routeValidationResult
+    ],
+    logoutCtrl
+);
 
 // send Password Reset Email
 router.post(

@@ -29,7 +29,7 @@ export type userLocationInterface = {
 
 export type userInterface = {
     _id?: string;
-    role: 'user' | 'admin',
+    role: 'user' | 'admin' | 'super admin' | 'moderator' | 'editor' | 'support',
     userType: 'artist' | 'record label',
     balance: number,
     email: string;
@@ -54,6 +54,17 @@ export type userInterface = {
     // lastUsedIp: string;
 
     location: locationInterface,
+
+    createdAt?: string;
+    updatedAt?: string;
+};
+
+export type userTokenInterface = {
+    _id?: string;
+    user_id: string;
+    user_role: string,
+    user_email: string;
+    token: string;
 
     createdAt?: string;
     updatedAt?: string;
