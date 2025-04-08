@@ -647,22 +647,21 @@ export const deleteBlogPostCtrl = async (req: Request, res: Response, next: Next
                     message: "Failed to delete blog post."
                 });
             }
-
-            // delete post
-            const deletedPromotion = await blogPost.deleteOne();
-            if (!deletedPromotion) {
-                // Response 
-                return res.status(400).json({
-                    status: false,
-                    statusCode: 400,
-                    message: "Failed to delete blog post."
-                });
-            }
         }
 
+        // delete post
+        const deletedPromotion = await blogPostModel.findByIdAndDelete(blogPost._id);
+        
+        if (!deletedPromotion) {
+            // Response 
+            return res.status(400).json({
+                status: false,
+                statusCode: 400,
+                message: "Failed to delete blog post."
+            });
+        }
         // delete all the comments associated with the post.
         const postComment = await blogPostCommentModel.deleteMany({ post_id: req.params.post_id });
-
 
         logActivity(req, `Deleted a blog post, and all its comments.`, admin_id);
         
