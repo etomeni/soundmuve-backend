@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { paymentInterface } from '@/typeInterfaces/transaction.interface.js';
 // import validator from 'validator';
 
 const PaymentSchema = new Schema(
@@ -15,10 +16,31 @@ const PaymentSchema = new Schema(
             type: String,
             required: true,
         },
+        paymentMethod: {
+            type: String,
+            required: true,
+        },
+        paymentTransactionId: {
+            type: String,
+            required: true,
+        },
+        paymentTransactionReference: {
+            type: String,
+            required: true,
+        },
+        paymentCurrency: {
+            type: String,
+            required: true,
+            default: "USD"
+        },
+        exchangeRate: {
+            type: String,
+            required: true,
+        },
+
         paidAmount: {
             type: String,
             required: true,
-            // max: 255,
         },
         paymentIntent: {
             type: String,
@@ -30,8 +52,10 @@ const PaymentSchema = new Schema(
         },
         paymentStatus: {
             type: String,
-            // required: true,
-        }
+            required: true,
+        },
+
+        
     },
     { timestamps: true }
 );

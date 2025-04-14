@@ -372,20 +372,17 @@ export const getPaymentIntentAndKeysCtrl = async (req: Request, res: Response, n
 // successful payment
 export const successfulPaymentCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(401).json({
-                status: false,
-                statusCode: 401,
-                message: 'sent data validation error!', 
-                ...errors
-            });
-        };
-
         const user_id = req.body.authMiddlewareParam._id;
         const user_email = req.body.authMiddlewareParam.email;
 
         const cartItems: cartItemInterface[] = req.body.cartItems;
+        
+        const paymentMethod = req.body.paymentMethod;
+        const paymentCurrency = req.body.paymentCurrency;
+        const exchangeRate = req.body.exchangeRate;
+        const transactionId = req.body.transactionId;
+        const transactionReference = req.body.transactionReference;
+
         const paidAmount = req.body.paidAmount;
         const paymentIntent = req.body.paymentIntent;
         const paymentIntentClientSecret = req.body.paymentIntentClientSecret;
@@ -395,11 +392,19 @@ export const successfulPaymentCtrl = async (req: Request, res: Response, next: N
         const newPayment = new PaymentModel({
             user_id,
             user_email,
+
             cartItems,
+
+            paymentMethod,
+            paymentCurrency,
+            exchangeRate, 
+            paymentTransactionId: transactionId,
+            paymentTransactionReference: transactionReference,
+
             paidAmount,
             paymentIntent,
             paymentIntentClientSecret,
-            paymentStatus
+            paymentStatus,
         });
         const newPaymentResponds = await newPayment.save();
         if (!newPaymentResponds) {
@@ -438,6 +443,13 @@ export const successfulPaymentCtrl = async (req: Request, res: Response, next: N
                 cartItems,
                 paidAmount,
                 totalAmount: getTotalAmount(),
+
+                paymentMethod,
+                paymentCurrency,
+                exchangeRate, 
+                paymentTransactionId: transactionId,
+                paymentTransactionReference: transactionReference,
+
                 paymentIntent,
                 paymentIntentClientSecret,
                 paymentStatus

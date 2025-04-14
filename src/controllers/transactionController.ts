@@ -21,10 +21,15 @@ import { withdrawExchangeInterface } from "@/typeInterfaces/transaction.interfac
 export const getExchangeRateCtrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // const _id = req.body.authMiddlewareParam._id;
+        // const { amount, currency  } = req.query;
 
-        const { amount, currency } = req.query;
+        const amount = req.query.amount as string;
+        const currencyFrom = req.query.currencyFrom as string;
+        const currencyTo = (req.query.currencyTo as string) || "USD";
 
-        const url_flutterwave = `https://api.flutterwave.com/v3/transfers/rates?amount=${amount}&destination_currency=${currency}&source_currency=USD`;
+
+        // const url_flutterwave = `https://api.flutterwave.com/v3/transfers/rates?amount=${amount}&destination_currency=${currency}&source_currency=USD`;
+        const url_flutterwave = `https://api.flutterwave.com/v3/transfers/rates?amount=${amount}&destination_currency=${currencyFrom}&source_currency=${currencyTo}`;
         const response = (await axios.get(url_flutterwave, {
             headers: {
                 Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`,

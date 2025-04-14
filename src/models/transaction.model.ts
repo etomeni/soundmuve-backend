@@ -63,8 +63,16 @@ const transactionSchema = new Schema<transactionInterface>(
             cartItems: { type: Array },
             paidAmount: { type: Number },
             totalAmount: { type: Number },
+
+            paymentMethod: { type: String },
+            paymentTransactionId: { type: String },
+            paymentTransactionReference: { type: String },
+            paymentCurrency: { type: String, default: "USD" },
+            exchangeRate: { type: String },
+            
             paymentIntent: { type: String },
             paymentIntentClientSecret: { type: String },
+
             paymentStatus: { type: String },
             currency: { type: String, default: "USD" },
         },

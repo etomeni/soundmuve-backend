@@ -25,14 +25,20 @@ router.get(
             .isNumeric().notEmpty()
             .withMessage('amount is required.'),
 
-        query('currency')
+        query('currencyFrom')
             .isString().trim().notEmpty()
-            .withMessage('currency is required.')
+            .withMessage('source currency is required.')
+            .matches(/^[A-Z]{3}$/)
+            .withMessage('Invalid currency format.'),
+
+        query('currencyTo')
+            .isString().trim().notEmpty()
+            .withMessage('destination currency is required.')
             .matches(/^[A-Z]{3}$/)
             .withMessage('Invalid currency format.'),
 
         routeValidationResult,
-        authMiddleware,
+        // authMiddleware,
     ],
     getExchangeRateCtrl
 );

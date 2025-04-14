@@ -6,6 +6,7 @@ const router = express.Router();
 
 // middleWares
 import authMiddleware from '@/middleware/auth.js';
+import routeValidationResult from '@/middleware/routeValidationResult.js';
 
 // Controllers
 import { 
@@ -17,7 +18,7 @@ import {
     successfulPaymentCtrl,
     checkReleaseCartCtrl,
     applyPromoCodeCtrl,
-} from '../controllers/cartController.js';
+} from '@/controllers/cartController.js';
 
 
 router.use(bodyParser.json());
@@ -178,6 +179,28 @@ router.post(
             .isArray({ min: 1 })
             .withMessage('Cart can not be empty.'),
 
+
+        body('paymentMethod')
+            .isString().notEmpty()
+            .withMessage('Payment method is required.'),
+
+        body('paymentCurrency')
+            .isString().notEmpty()
+            .withMessage('Payment currency is required.'),
+
+        body('exchangeRate')
+            .isString().notEmpty()
+            .withMessage('Exchange rate is required.'),
+
+        body('transactionId')
+            .isString().notEmpty()
+            .withMessage('Transaction id is required.'),
+
+        body('transactionReference')
+            .isString().notEmpty()
+            .withMessage('Transaction reference is required.'),
+
+
         body('paymentIntent')
             .isString()
             .withMessage('payment intent ID must be a string.'),
@@ -190,6 +213,7 @@ router.post(
             .isString()
             .withMessage('payment status must be a string.'),
 
+        routeValidationResult,
         authMiddleware,
     ],
     successfulPaymentCtrl

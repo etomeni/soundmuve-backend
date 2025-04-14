@@ -72,3 +72,26 @@ export type withdrawExchangeInterface = {
         amount: number
     }
 }
+
+export type paymentInterface = {
+    _id: string;
+    user_id: string;
+    user_email: string;
+    
+    cartItems: cartItemInterface[],
+    paymentMethod: string;
+
+    paymentTransactionId: string;
+    paymentTransactionReference: string;
+    paymentCurrency: string;
+    exchangeRate: string;
+    
+    paidAmount: string;
+
+    paymentIntent: string;
+    paymentIntentClientSecret: string;
+
+    paymentStatus: string;
+    createdAt: string;
+    updatedAt: string;
+}
