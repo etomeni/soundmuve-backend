@@ -28,6 +28,7 @@ export type analyticsInterface = {
     song_id: string,
     date: Date, // month and year
     
+    serviceCharge: number, // service charge  percentage used to calculate the revenue
     albumSold: number,
     noSold: number,
     revenue: number,

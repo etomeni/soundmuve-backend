@@ -94,9 +94,9 @@ router.post(
             .isString().trim().notEmpty()
             .withMessage('admin user name is required.'),
 
-        // body('user_email')
-        //     .isString().trim().notEmpty()
-        //     .withMessage('user email is required.'),
+        body('serviceCharge')
+            .isNumeric().notEmpty()
+            .withMessage('service charge is required.'),
 
         // body('user_id')
         //     .isString().trim().notEmpty()

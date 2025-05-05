@@ -310,6 +310,8 @@ export const setAnalyticsCtrl = async (req: Request, res: Response, next: NextFu
             user_email: userDetails.email,
             user_id: userDetails._id,
 
+            serviceCharge: req.body.serviceCharge || 0,
+
             release_id: req.body.release_id,
             song_id: req.body.song_id,
             date: req.body.date,

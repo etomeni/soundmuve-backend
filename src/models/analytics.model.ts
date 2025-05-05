@@ -39,6 +39,10 @@ const analyticsSchema = new Schema<analyticsInterface>(
             required: true,
         },
 
+        serviceCharge: {
+            type: Number,
+            // required: true,
+        },
         albumSold: {
             type: Number,
             // required: true,
