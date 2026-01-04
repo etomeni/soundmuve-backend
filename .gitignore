@@ -12,8 +12,11 @@
 Thumbs.db
 UserInterfaceState.xcuserstate
 $RECYCLE.BIN/
+
 .env
-.env.production
+.env.*
+!.env.example
+
 prodUpdateCommands.sh
 
 *.local

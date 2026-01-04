@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express-serve-static-core";
 import nodemailer from 'nodemailer';
 
 import { _getSpotifyAccessTokenFunc } from "@/middleware/sportify_appleMusic.js";
-import { sendNewsletterMail } from "@/util/mail.js";
+import { sendEmail, sendNewsletterMail } from "@/util/mail.js";
 import { newsLetterModel, newsLetterSubscriberModel } from "@/models/newsletter.model.js";
 
 import { logActivity } from "@/util/activityLogFn.js";
@@ -23,7 +23,7 @@ export const getNewsletterSubscribersCtrl = async (req: Request, res: Response, 
             .limit(limit) // Set the number of items per page
             .skip((page - 1) * limit) // Skip items to create pages
             .exec();
-        
+
         if (!subscribers) {
             return res.status(500).json({
                 status: false,
@@ -69,7 +69,7 @@ export const getSentNewslettersCtrl = async (req: Request, res: Response, next: 
             .limit(limit) // Set the number of items per page
             .skip((page - 1) * limit) // Skip items to create pages
             .exec();
-        
+
         if (!subscribers) {
             return res.status(500).json({
                 status: false,
@@ -155,7 +155,7 @@ export const sendNewsletterCtrl = async (req: Request, res: Response, next: Next
             title: req.body.title,
             message: req.body.message,
             recipients: [],
-            failedRecipients:[],
+            failedRecipients: [],
             sentBy: {
                 user_id: _id,
                 user_email: user_email,
@@ -188,7 +188,7 @@ export const sendNewsletterCtrl = async (req: Request, res: Response, next: Next
 
         const mailTransporter = nodemailer.createTransport({
             // service: "gmail",
-            host:  process.env.HOST_SENDER,
+            host: process.env.HOST_SENDER,
             port: 465,
             auth: {
                 user: process.env.HOST_EMAIL,
@@ -196,29 +196,39 @@ export const sendNewsletterCtrl = async (req: Request, res: Response, next: Next
             }
         });
 
+        sendEmail(
+            recipients,
+            newsLetter.title,
+            newsLetter.message,
+            '',
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
+
         mailTransporter.sendMail(
             {
-                from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+                from: `Soundmuve <${process.env.HOST_EMAIL}>`,
                 to: recipients,
                 subject: newsLetter.title,
                 text: '',
                 html: newsLetter.message
-            }, 
+            },
             async (err, info) => {
                 // console.log(info);
 
                 if (info) {
                     const update = await result.updateOne({
-                        failedRecipients:  info.rejected,
+                        failedRecipients: info.rejected,
                         recipients: info.accepted,
                     });
 
                     // console.log(update);
                 }
-                
+
                 if (err) {
                     console.log(err);
-                    
+
                     return {
                         status: false,
                         error: err,

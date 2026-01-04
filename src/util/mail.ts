@@ -1,6 +1,6 @@
 import fs from "fs";
 import Jwt from "jsonwebtoken";
-// import axios from "axios";
+import axios from "axios";
 import nodemailer from 'nodemailer';
 import moment from 'moment';
 import { locationInterface } from "@/typeInterfaces/users.interface.js";
@@ -11,7 +11,7 @@ const year = moment().format("YYYY");
 const mailTransporter = () => {
     const mailTransporter = nodemailer.createTransport({
         // service: "gmail",
-        host:  process.env.HOST_SENDER,
+        host: process.env.HOST_SENDER,
         port: 465,
         auth: {
             user: process.env.HOST_EMAIL,
@@ -25,13 +25,58 @@ const mailTransporter = () => {
 const formatMessageForEmail = (message: string) => {
     return message.replace(/\n/g, '<br>');
 };
-  
+
+// Function to send email
+export const sendEmail = async (
+    email: string,
+    subject: string,
+    msgHtmlTemplate: string,
+    msgText = '',
+    senderName = 'Runam Withbigold'
+) => {
+    try {
+        const payload = {
+            to: email,
+            subject: subject,
+            message_text: msgText,
+            message_html: msgHtmlTemplate,
+            message: msgText || msgHtmlTemplate,
+            fromName: senderName,
+            // fromEmail: "your_email@domain.com",
+        };
+        const mailEndpointResponse = (await axios.post(`https://soundmuve-mailer.vercel.app/api/send-email`, payload)).data;
+        // console.log(mailEndpointResponse);
+
+        if (mailEndpointResponse.status) {
+            return {
+                status: true,
+                result: mailEndpointResponse.info,
+                message: 'Email sent successfully.',
+            }
+        } else {
+            return {
+                status: false,
+                result: mailEndpointResponse.info,
+                message: 'Email sending failed.',
+                error: mailEndpointResponse
+            }
+        }
+
+    } catch (error) {
+        return {
+            status: false,
+            error,
+            message: 'An error occurred while sending email.',
+        };
+    }
+};
+
 
 export const sendEmailVerificationCode = (email: string, name = "", subject = "Email Verification Code") => {
     try {
         const codeLength = 4;
         const code = Math.floor(Math.random() * Math.pow(10, codeLength)).toString().padStart(codeLength, '0');
-    
+
         const jwt_token = Jwt.sign(
             { code, email },
             `${code}`,
@@ -40,14 +85,14 @@ export const sendEmailVerificationCode = (email: string, name = "", subject = "E
 
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/emailVerification.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{code}}/g, code)
-        .replace(/{{year}}/g, year);
-        
+            .replace(/{{code}}/g, code)
+            .replace(/{{year}}/g, year);
+
         // console.log(Htmltemplate);
-        
+
         const mailText = `
             Email Verification
 
@@ -65,14 +110,27 @@ export const sendEmailVerificationCode = (email: string, name = "", subject = "E
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject,
             text: mailText,
             html: Htmltemplate
         };
 
-        mailTransporter().sendMail(details, (err) => {
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
+
+
+        mailTransporter().sendMail(details, (err, info) => {
+            console.log({ err, info });
+
             if (err) {
                 return {
                     status: false,
@@ -81,7 +139,7 @@ export const sendEmailVerificationCode = (email: string, name = "", subject = "E
                 }
             }
         });
-        
+
         return {
             status: true,
             code: code,
@@ -101,7 +159,7 @@ export const sendUserContactMailAutoResponse = (email: string, name: string, mes
     try {
         const mailTransporter = nodemailer.createTransport({
             // service: "gmail",
-            host:  process.env.HOST_SENDER,
+            host: process.env.HOST_SENDER,
             port: 465,
             auth: {
                 user: process.env.HOST_EMAIL,
@@ -111,16 +169,16 @@ export const sendUserContactMailAutoResponse = (email: string, name: string, mes
 
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/contactUs_UserAutoResMail.html", 'utf8');
-        
+
 
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{email}}/g, email)
-        .replace(/{{year}}/g, year)
-        .replace(/{{message}}/g, formatMessageForEmail(message));
-        
+            .replace(/{{email}}/g, email)
+            .replace(/{{year}}/g, year)
+            .replace(/{{message}}/g, formatMessageForEmail(message));
+
         // console.log(Htmltemplate);
-        
+
         const mailText = `
             Hi ${name},
 
@@ -141,12 +199,22 @@ export const sendUserContactMailAutoResponse = (email: string, name: string, mes
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "Thank You for Contacting Us - We've Received Your Message!",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter.sendMail(details, (err) => {
             if (err) {
@@ -157,7 +225,7 @@ export const sendUserContactMailAutoResponse = (email: string, name: string, mes
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
@@ -175,7 +243,7 @@ export const sendUserAdminContactUsReplyMail = (email: string, name: string, mes
     try {
         const mailTransporter = nodemailer.createTransport({
             // service: "gmail",
-            host:  process.env.HOST_SENDER,
+            host: process.env.HOST_SENDER,
             port: 465,
             auth: {
                 user: process.env.HOST_EMAIL,
@@ -188,12 +256,12 @@ export const sendUserAdminContactUsReplyMail = (email: string, name: string, mes
 
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        // .replace(/{{email}}/g, email)
-        .replace(/{{year}}/g, year)
-        .replace(/{{message}}/g, formatMessageForEmail(message));
-        
+            // .replace(/{{email}}/g, email)
+            .replace(/{{year}}/g, year)
+            .replace(/{{message}}/g, formatMessageForEmail(message));
+
         // console.log(Htmltemplate);
-        
+
         const mailText = `
             Hi ${name},
 
@@ -211,12 +279,22 @@ export const sendUserAdminContactUsReplyMail = (email: string, name: string, mes
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "Response to Your Inquiry",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter.sendMail(details, (err, info) => {
             // console.log(info);
@@ -229,7 +307,7 @@ export const sendUserAdminContactUsReplyMail = (email: string, name: string, mes
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
@@ -249,20 +327,29 @@ export const sendNewsletterMail = (
     try {
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: recipient,
             subject: title,
             text: '',
             html: message
         };
 
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err, info) => {
             console.log(info);
-            
+
             if (err) {
                 console.log(err);
-                
+
                 return {
                     status: false,
                     error: err,
@@ -270,7 +357,7 @@ export const sendNewsletterMail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
@@ -288,7 +375,7 @@ export const sendAdminUserContactUsNotification = (email: string, name: string, 
     try {
         const mailTransporter = nodemailer.createTransport({
             // service: "gmail",
-            host:  process.env.HOST_SENDER,
+            host: process.env.HOST_SENDER,
             port: 465,
             auth: {
                 user: process.env.HOST_EMAIL,
@@ -298,15 +385,15 @@ export const sendAdminUserContactUsNotification = (email: string, name: string, 
 
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/contactUs_NotifyAdminMail.html", 'utf8');
-        
+
 
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{email}}/g, email)
-        .replace(/{{year}}/g, year)
-        .replace(/{{message}}/g, message);
-        
-        
+            .replace(/{{email}}/g, email)
+            .replace(/{{year}}/g, year)
+            .replace(/{{message}}/g, message);
+
+
         const mailText = `
             Hello Admin,
 
@@ -322,7 +409,7 @@ export const sendAdminUserContactUsNotification = (email: string, name: string, 
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `help@soundmuve.com`,
             replyTo: email,
             subject: "New Contact Form Submission",
@@ -330,9 +417,19 @@ export const sendAdminUserContactUsNotification = (email: string, name: string, 
             html: Htmltemplate
         };
 
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
+
         mailTransporter.sendMail(details, (err, info) => {
             // console.log(info);
-            
+
             if (err) {
                 return {
                     status: false,
@@ -341,7 +438,7 @@ export const sendAdminUserContactUsNotification = (email: string, name: string, 
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
@@ -363,18 +460,18 @@ export const sendLoginNotification = (
 
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/login_differentIpMail.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{city}}/g, location.city)
-        .replace(/{{region}}/g, location.region)
-        .replace(/{{country}}/g, location.country)
-        .replace(/{{userIp}}/g, location.ip)
-        .replace(/{{date_time}}/g, fullDate_time)
-        .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{city}}/g, location.city)
+            .replace(/{{region}}/g, location.region)
+            .replace(/{{country}}/g, location.country)
+            .replace(/{{userIp}}/g, location.ip)
+            .replace(/{{date_time}}/g, fullDate_time)
+            .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hello ${name},
 
@@ -397,12 +494,22 @@ export const sendLoginNotification = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "New Login Alert!",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -413,14 +520,14 @@ export const sendLoginNotification = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -435,12 +542,12 @@ export const sendNewPasswordConfirmationMail = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/newPasswordConfirmationMail.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hello ${name},
 
@@ -462,12 +569,22 @@ export const sendNewPasswordConfirmationMail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "Password Reset Successful",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -478,14 +595,14 @@ export const sendNewPasswordConfirmationMail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -501,15 +618,15 @@ export const sendNewAdminNotificationMail = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/adminRoleNotification.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{email}}/g, email)
-        // .replace(/{{password}}/g, password)
-        .replace(/{{adminDashboardUrl}}/g, adminDashboardUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{email}}/g, email)
+            // .replace(/{{password}}/g, password)
+            .replace(/{{adminDashboardUrl}}/g, adminDashboardUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hello ${name},
 
@@ -518,7 +635,7 @@ export const sendNewAdminNotificationMail = (
             Please ensure you understand your new responsibilities and use your privileges responsibly. You can log in to your account to explore your new permissions and get started:
             
             Note: To login, use your existing soundmuve login credentials.
-            ${ adminDashboardUrl }
+            ${adminDashboardUrl}
 
             If you have any questions about your new role or need assistance, please feel free to reach out to us.
 
@@ -531,12 +648,22 @@ export const sendNewAdminNotificationMail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "You Have Been Granted Admin Access!",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -547,14 +674,14 @@ export const sendNewAdminNotificationMail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -570,15 +697,15 @@ export const sendNewAdminNotificationMailWithCredentials = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/adminRoleNotificationWithCredentials.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{email}}/g, email)
-        .replace(/{{password}}/g, password)
-        .replace(/{{adminDashboardUrl}}/g, adminDashboardUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{email}}/g, email)
+            .replace(/{{password}}/g, password)
+            .replace(/{{adminDashboardUrl}}/g, adminDashboardUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hello ${name},
 
@@ -590,7 +717,7 @@ export const sendNewAdminNotificationMailWithCredentials = (
 
             Please ensure you understand your new responsibilities and use your privileges responsibly. You can log in to your account to explore your new permissions and get started:
 
-            ${ adminDashboardUrl }
+            ${adminDashboardUrl}
 
             If you have any questions about your new role or need assistance, please feel free to reach out to us.
 
@@ -603,12 +730,22 @@ export const sendNewAdminNotificationMailWithCredentials = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "You Have Been Granted Admin Access!",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -619,14 +756,14 @@ export const sendNewAdminNotificationMailWithCredentials = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -641,12 +778,12 @@ export const sendAdminRemovalNotificationMail = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/adminRoleRemovalNotification.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hello ${name},
 
@@ -664,12 +801,22 @@ export const sendAdminRemovalNotificationMail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "Admin Privileges Removed",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -680,14 +827,14 @@ export const sendAdminRemovalNotificationMail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -702,13 +849,13 @@ export const sendAccountBlockedNotificationMail = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/accountBlockedNotification.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hello ${name},
 
@@ -729,12 +876,22 @@ export const sendAccountBlockedNotificationMail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "Your Account has been restricted",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -745,14 +902,14 @@ export const sendAccountBlockedNotificationMail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -762,7 +919,7 @@ export const sendAccountBlockedNotificationMail = (
 }
 
 export const sendCouponApprovalNotificationMail = (
-    email: string, name: string, 
+    email: string, name: string,
     couponCode: string, discountPercentage: string,
     discountedAmount: string, payableAmount: string,
     soundmuveUrl: string,
@@ -770,17 +927,17 @@ export const sendCouponApprovalNotificationMail = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/adminCouponApprovalNotification.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{couponCode}}/g, couponCode)
-        .replace(/{{discountPercentage}}/g, discountPercentage)
-        .replace(/{{discountedAmount}}/g, discountedAmount)
-        .replace(/{{payableAmount}}/g, payableAmount)
-        .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{couponCode}}/g, couponCode)
+            .replace(/{{discountPercentage}}/g, discountPercentage)
+            .replace(/{{discountedAmount}}/g, discountedAmount)
+            .replace(/{{payableAmount}}/g, payableAmount)
+            .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hello ${name},
 
@@ -805,12 +962,22 @@ export const sendCouponApprovalNotificationMail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "Discounted Release Application Approved!",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -821,14 +988,14 @@ export const sendCouponApprovalNotificationMail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -838,18 +1005,18 @@ export const sendCouponApprovalNotificationMail = (
 }
 
 export const sendCouponRejectionNotificationMail = (
-    email: string, name: string, 
+    email: string, name: string,
 ) => {
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/adminCouponRejectionNotification.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        // .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            // .replace(/{{soundmuveUrl}}/g, soundmuveUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hello ${name},
 
@@ -866,12 +1033,22 @@ export const sendCouponRejectionNotificationMail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "Discounted Release Application Status",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -882,14 +1059,14 @@ export const sendCouponRejectionNotificationMail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -904,13 +1081,13 @@ export const sendReleaseReminder1Mail = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/releaseReminder1.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{soundmuveUrl}}/g, releaseUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{soundmuveUrl}}/g, releaseUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hey ${name},
 
@@ -929,12 +1106,22 @@ export const sendReleaseReminder1Mail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "You're almost there! Publish your music today!",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -945,14 +1132,14 @@ export const sendReleaseReminder1Mail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -967,13 +1154,13 @@ export const sendReleaseReminder2Mail = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/releaseReminder2.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{soundmuveUrl}}/g, releaseUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{soundmuveUrl}}/g, releaseUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hey ${name},
 
@@ -993,12 +1180,22 @@ export const sendReleaseReminder2Mail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "You're almost there! Publish your music today!",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -1009,14 +1206,14 @@ export const sendReleaseReminder2Mail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -1031,13 +1228,13 @@ export const sendReleaseReminder3Mail = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/releaseReminder3.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{soundmuveUrl}}/g, releaseUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{soundmuveUrl}}/g, releaseUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hey ${name},
 
@@ -1059,12 +1256,22 @@ export const sendReleaseReminder3Mail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "Don't miss your release date! Complete your distribution",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -1075,14 +1282,14 @@ export const sendReleaseReminder3Mail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
@@ -1097,13 +1304,13 @@ export const sendReleaseReminder4Mail = (
     try {
         // Read the HTML file synchronously
         const data = fs.readFileSync("./src/emailTemplates/releaseReminder4.html", 'utf8');
-        
+
         // Replace the placeholder with a dynamic value (e.g., "John")
         const Htmltemplate = data.replace(/{{name}}/g, name)
-        .replace(/{{soundmuveUrl}}/g, releaseUrl)
-        .replace(/{{year}}/g, year);
-        
-        
+            .replace(/{{soundmuveUrl}}/g, releaseUrl)
+            .replace(/{{year}}/g, year);
+
+
         const mailText = `
             Hey ${name},
 
@@ -1126,12 +1333,22 @@ export const sendReleaseReminder4Mail = (
         `;
 
         const details = {
-            from: `Soundmuve <${ process.env.HOST_EMAIL }>`,
+            from: `Soundmuve <${process.env.HOST_EMAIL}>`,
             to: `${email}`,
             subject: "Your music is waiting—Make it live today!",
             text: mailText,
             html: Htmltemplate
         };
+
+        sendEmail(
+            details.to,
+            details.subject,
+            details.html,
+            details.text,
+            "Soundmuve"
+        ).then(response => {
+            console.log("Email send response:", response);
+        });
 
         mailTransporter().sendMail(details, (err) => {
             if (err) {
@@ -1142,14 +1359,14 @@ export const sendReleaseReminder4Mail = (
                 }
             }
         });
-        
+
         return {
             status: true,
             message: 'Email sent successfully.',
         }
     } catch (error) {
         console.log(error);
-        
+
         return {
             status: false,
             error,
